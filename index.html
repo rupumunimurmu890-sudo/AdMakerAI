@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AdMakerAI - AI Advertisement Maker</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f4f7ff;
+      color: #172033;
+      padding: 20px;
+    }
+
+    .app {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 5px 25px rgba(0,0,0,.1);
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin: 15px 0 8px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      padding: 13px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      font-size: 16px;
+    }
+
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .upload {
+      border: 2px dashed #777;
+      padding: 25px;
+      text-align: center;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    .preview {
+      width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      margin-top: 15px;
+      border-radius: 12px;
+      display: none;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 22px;
+      padding: 15px;
+      border: none;
+      border-radius: 12px;
+      background: #5b35f5;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:active {
+      transform: scale(.98);
+    }
+
+    .result {
+      margin-top: 25px;
+      padding: 18px;
+      background: #f5f5f5;
+      border-radius: 12px;
+      display: none;
+    }
+
+    .result h2 {
+      margin-bottom: 12px;
+    }
+
+    .script {
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="app">
+
+    <h1>🎬 AdMakerAI</h1>
+    <p class="subtitle">AI Advertisement Maker</p>
+
+    <label>📷 Product Image</label>
+
+    <div class="upload" onclick="document.getElementById('imageInput').click()">
+      Tap to upload product image
+    </div>
+
+    <input
+      type="file"
+      id="imageInput"
+      accept="image/*"
+      style="display:none"
+    >
+
+    <img id="preview" class="preview">
+
+    <label>🛍️ Product Name</label>
+    <input
+      type="text"
+      id="productName"
+      placeholder="Example: Britannia Winkin Cow Lassi"
+    >
+
+    <label>💰 Price</label>
+    <input
+      type="text"
+      id="price"
+      placeholder="Example: ₹20"
+    >
+
+    <label>📝 Product Details</label>
+    <textarea
+      id="details"
+      placeholder="Product ke baare mein short details likhiye..."
+    ></textarea>
+
+    <label>🎯 Advertisement Language</label>
+
+    <select id="language">
+      <option>Hindi</option>
+      <option>English</option>
+      <option>Hinglish</option>
+    </select>
+
+    <button onclick="generateAd()">
+      ✨ Generate Advertisement
+    </button>
+
+    <div id="result" class="result">
+      <h2>🎬 Advertisement Script</h2>
+      <div id="script" class="script"></div>
+    </div>
+
+  </div>
+
+  <script>
+
+    const imageInput = document.getElementById("imageInput");
+    const preview = document.getElementById("preview");
+
+    imageInput.addEventListener("change", function () {
+
+      const file = this.files[0];
+
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+      }
+
+    });
+
+    function generateAd() {
+
+      const product =
+        document.getElementById("productName").value.trim();
+
+      const price =
+        document.getElementById("price").value.trim();
+
+      const details =
+        document.getElementById("details").value.trim();
+
+      const language =
+        document.getElementById("language").value;
+
+      if (!product) {
+        alert("Please enter product name.");
+        return;
+      }
+
+      let script = "";
+
+      if (language === "Hindi") {
+
+        script =
+`🎬 AdMakerAI Advertisement
+
+✨ पेश है ${product}!
+
+${details || "बेहतरीन क्वालिटी और शानदार अनुभव के साथ।"}
+
+💰 कीमत: ${price || "आज की खास कीमत"}
+
+🛒 अभी Order करें!
+
+❤️ HomeCart Shopping`;
+
+      } else if (language === "English") {
+
+        script =
+`🎬 AdMakerAI Advertisement
+
+✨ Introducing ${product}!
+
+${details || "Great quality and an amazing experience."}
+
+💰 Price: ${price || "Special Price"}
+
+🛒 Order Now!
+
+❤️ HomeCart Shopping`;
+
+      } else {
+
+        script =
+`🎬 AdMakerAI Advertisement
+
+✨ Presenting ${product}!
+
+${details || "Great quality aur amazing experience."}
+
+💰 Price: ${price || "Special Price"}
+
+🛒 Abhi Order karein!
+
+❤️ HomeCart Shopping`;
+
+      }
+
+      document.getElementById("script").textContent = script;
+
+      document.getElementById("result").style.display = "block";
+
+    }
+
+  </script>
+
+</body>
+</html>
