@@ -263,7 +263,7 @@ ${details || "बेहतरीन क्वालिटी और शानद
 
 🛒 अभी Order करें!
 
-❤️ HomeCart Shopping`;
+✨ Made by Santosh Marandi`;
 
   } else if (language === "English") {
 
@@ -293,7 +293,7 @@ ${details || "Great quality aur amazing experience."}
 
 🛒 Abhi Order karein!
 
-❤️ HomeCart Shopping`;
+✨ Made by Santosh Marandi`;
 
   }
 
@@ -448,6 +448,13 @@ function finishAdImage(ctx, product, price, details) {
     540,
     990
   );
+  ctx.font = "bold 32px Arial";
+
+ctx.fillText(
+  "Made by Santosh Marandi",
+  540,
+  1040
+);
 
   document.getElementById("downloadAd").style.display = "block";
 
