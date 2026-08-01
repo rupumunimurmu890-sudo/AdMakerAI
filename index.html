@@ -166,8 +166,12 @@
     </button>
 
     <div id="result" class="result">
-      <h2>🎬 Advertisement Script</h2>
-      <div id="script" class="script"></div>
+  <h2>🎬 Advertisement Script</h2>
+  <div id="script" class="script"></div>
+
+  <button onclick="copyAdvertisement()">
+    📋 Copy Advertisement
+  </button>
     </div>
 
   </div>
@@ -259,6 +263,21 @@ ${details || "Great quality aur amazing experience."}
       document.getElementById("script").textContent = script;
 
       document.getElementById("result").style.display = "block";
+      function copyAdvertisement() {
+  const text = document.getElementById("script").textContent;
+
+  navigator.clipboard.writeText(text).then(() => {
+    alert("✅ Advertisement copied!");
+  }).catch(() => {
+    alert("❌ Copy नहीं हो पाया।");
+  });
+      }
+          }
+
+  </script>
+
+</body>
+</html>
 
     }
 
