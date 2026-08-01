@@ -468,6 +468,55 @@ function downloadAdImage() {
   link.click();
 
 }
+  function shareWhatsApp() {
+  const text = document.getElementById("script").textContent;
+  window.open(
+    "https://wa.me/?text=" + encodeURIComponent(text),
+    "_blank"
+  );
+}
+
+function shareFacebook() {
+  const url = window.location.href;
+  window.open(
+    "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url),
+    "_blank"
+  );
+}
+
+function shareTelegram() {
+  const text = document.getElementById("script").textContent;
+  const url = window.location.href;
+
+  window.open(
+    "https://t.me/share/url?url=" +
+    encodeURIComponent(url) +
+    "&text=" +
+    encodeURIComponent(text),
+    "_blank"
+  );
+}
+
+function sharePinterest() {
+  const url = window.location.href;
+
+  window.open(
+    "https://www.pinterest.com/pin/create/button/?url=" +
+    encodeURIComponent(url),
+    "_blank"
+  );
+}
+
+function shareInstagram() {
+  const text = document.getElementById("script").textContent;
+
+  navigator.clipboard.writeText(text).then(function() {
+    alert("✅ Advertisement copied! अब Instagram खोलें और पोस्ट/स्टोरी में इसे इस्तेमाल करें।");
+    window.open("https://www.instagram.com/", "_blank");
+  }).catch(function() {
+    window.open("https://www.instagram.com/", "_blank");
+  });
+}
 
 </script>
 </body>
