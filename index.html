@@ -279,6 +279,32 @@ ${details || "Great quality aur amazing experience."}
 ❤️ HomeCart Shopping`;
 
   }
+    const productLink =
+    document.getElementById("productLink").value.trim();
+
+  if (productLink) {
+    script += `
+
+🔗 Order Link:
+${productLink}`;
+  }
+
+  document.getElementById("script").textContent = script;
+
+  const orderButton = document.getElementById("orderButton");
+
+  if (productLink) {
+    orderButton.style.display = "block";
+
+    orderButton.onclick = function () {
+      window.open(productLink, "_blank");
+    };
+  } else {
+    orderButton.style.display = "none";
+  }
+
+  document.getElementById("result").style.display = "block";
+}
 
   document.getElementById("script").textContent = script;
 
