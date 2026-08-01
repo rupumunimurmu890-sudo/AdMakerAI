@@ -196,35 +196,29 @@
 
   </div>
 
-  <script>
+  
+<script>
 
 const imageInput = document.getElementById("imageInput");
 const preview = document.getElementById("preview");
 
 imageInput.addEventListener("change", function () {
-
   const file = this.files[0];
 
   if (file) {
     preview.src = URL.createObjectURL(file);
     preview.style.display = "block";
   }
-
 });
+
 
 function generateAd() {
 
-  const product =
-    document.getElementById("productName").value.trim();
-
-  const price =
-    document.getElementById("price").value.trim();
-
-  const details =
-    document.getElementById("details").value.trim();
-
-  const language =
-    document.getElementById("language").value;
+  const product = document.getElementById("productName").value.trim();
+  const price = document.getElementById("price").value.trim();
+  const details = document.getElementById("details").value.trim();
+  const language = document.getElementById("language").value;
+  const productLink = document.getElementById("productLink").value.trim();
 
   if (!product) {
     alert("Please enter product name.");
@@ -279,8 +273,7 @@ ${details || "Great quality aur amazing experience."}
 ❤️ HomeCart Shopping`;
 
   }
-    const productLink =
-    document.getElementById("productLink").value.trim();
+
 
   if (productLink) {
     script += `
@@ -289,45 +282,48 @@ ${details || "Great quality aur amazing experience."}
 ${productLink}`;
   }
 
+
   document.getElementById("script").textContent = script;
+  document.getElementById("result").style.display = "block";
+
 
   const orderButton = document.getElementById("orderButton");
 
   if (productLink) {
+
     orderButton.style.display = "block";
 
     orderButton.onclick = function () {
       window.open(productLink, "_blank");
     };
+
   } else {
+
     orderButton.style.display = "none";
+
   }
 
-  document.getElementById("result").style.display = "block";
 }
 
-  document.getElementById("script").textContent = script;
-
-  document.getElementById("result").style.display = "block";
-
-}
 
 function copyAdvertisement() {
 
   const text = document.getElementById("script").textContent;
 
-  navigator.clipboard.writeText(text).then(function() {
+  navigator.clipboard.writeText(text).then(function () {
 
     alert("✅ Advertisement copied!");
 
-  }).catch(function() {
+  }).catch(function () {
 
     alert("❌ Copy नहीं हो पाया।");
 
   });
 
 }
-    function createAdImage() {
+
+
+function createAdImage() {
 
   const product = document.getElementById("productName").value.trim();
   const price = document.getElementById("price").value.trim();
@@ -344,21 +340,17 @@ function copyAdvertisement() {
   canvas.width = 1080;
   canvas.height = 1080;
 
-  // Background
   ctx.fillStyle = "#f5f5f5";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Header
   ctx.fillStyle = "#111111";
   ctx.font = "bold 70px Arial";
   ctx.textAlign = "center";
   ctx.fillText("🎬 AdMakerAI", 540, 100);
 
-  // Product name
   ctx.font = "bold 55px Arial";
   ctx.fillText(product, 540, 190);
 
-  // Product image
   const file = document.getElementById("imageInput").files[0];
 
   if (file) {
@@ -373,7 +365,10 @@ function copyAdvertisement() {
       let width = img.width;
       let height = img.height;
 
-      const ratio = Math.min(maxWidth / width, maxHeight / height);
+      const ratio = Math.min(
+        maxWidth / width,
+        maxHeight / height
+      );
 
       width *= ratio;
       height *= ratio;
@@ -386,7 +381,7 @@ function copyAdvertisement() {
         height
       );
 
-      finishAdImage(ctx, canvas, product, price, details);
+      finishAdImage(ctx, product, price, details);
 
     };
 
@@ -394,26 +389,28 @@ function copyAdvertisement() {
 
   } else {
 
-    finishAdImage(ctx, canvas, product, price, details);
+    finishAdImage(ctx, product, price, details);
 
   }
+
 }
 
 
-function finishAdImage(ctx, canvas, product, price, details) {
+function finishAdImage(ctx, product, price, details) {
 
   ctx.textAlign = "center";
 
   ctx.fillStyle = "#111111";
   ctx.font = "bold 45px Arial";
+
   ctx.fillText(
     details || "बेहतरीन क्वालिटी और शानदार अनुभव",
     540,
     830
   );
 
-  ctx.fillStyle = "#111111";
   ctx.font = "bold 60px Arial";
+
   ctx.fillText(
     "💰 " + (price || "Special Price"),
     540,
@@ -421,11 +418,17 @@ function finishAdImage(ctx, canvas, product, price, details) {
   );
 
   ctx.font = "bold 45px Arial";
-  ctx.fillText("🛒 अभी Order करें!", 540, 990);
+
+  ctx.fillText(
+    "🛒 अभी Order करें!",
+    540,
+    990
+  );
 
   document.getElementById("downloadAd").style.display = "block";
 
   alert("✅ Advertisement Image तैयार है!");
+
 }
 
 
@@ -443,7 +446,6 @@ function downloadAdImage() {
 
 }
 
-  </script>
-
+</script>
 </body>
 </html>
