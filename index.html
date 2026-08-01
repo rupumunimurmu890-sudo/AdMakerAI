@@ -172,6 +172,15 @@
   <button onclick="copyAdvertisement()">
     📋 Copy Advertisement
   </button>
+      <button onclick="createAdImage()">
+  🖼️ Create Advertisement Image
+</button>
+
+<canvas id="adCanvas" style="display:none;"></canvas>
+
+<button id="downloadAd" style="display:none;" onclick="downloadAdImage()">
+  📥 Download Advertisement
+</button>
     </div>
 
   </div>
@@ -279,6 +288,121 @@ function copyAdvertisement() {
     alert("❌ Copy नहीं हो पाया।");
 
   });
+
+}
+    function createAdImage() {
+
+  const product = document.getElementById("productName").value.trim();
+  const price = document.getElementById("price").value.trim();
+  const details = document.getElementById("details").value.trim();
+
+  if (!product) {
+    alert("Please enter product name.");
+    return;
+  }
+
+  const canvas = document.getElementById("adCanvas");
+  const ctx = canvas.getContext("2d");
+
+  canvas.width = 1080;
+  canvas.height = 1080;
+
+  // Background
+  ctx.fillStyle = "#f5f5f5";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Header
+  ctx.fillStyle = "#111111";
+  ctx.font = "bold 70px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("🎬 AdMakerAI", 540, 100);
+
+  // Product name
+  ctx.font = "bold 55px Arial";
+  ctx.fillText(product, 540, 190);
+
+  // Product image
+  const file = document.getElementById("imageInput").files[0];
+
+  if (file) {
+
+    const img = new Image();
+
+    img.onload = function () {
+
+      const maxWidth = 800;
+      const maxHeight = 520;
+
+      let width = img.width;
+      let height = img.height;
+
+      const ratio = Math.min(maxWidth / width, maxHeight / height);
+
+      width *= ratio;
+      height *= ratio;
+
+      ctx.drawImage(
+        img,
+        (1080 - width) / 2,
+        240,
+        width,
+        height
+      );
+
+      finishAdImage(ctx, canvas, product, price, details);
+
+    };
+
+    img.src = URL.createObjectURL(file);
+
+  } else {
+
+    finishAdImage(ctx, canvas, product, price, details);
+
+  }
+}
+
+
+function finishAdImage(ctx, canvas, product, price, details) {
+
+  ctx.textAlign = "center";
+
+  ctx.fillStyle = "#111111";
+  ctx.font = "bold 45px Arial";
+  ctx.fillText(
+    details || "बेहतरीन क्वालिटी और शानदार अनुभव",
+    540,
+    830
+  );
+
+  ctx.fillStyle = "#111111";
+  ctx.font = "bold 60px Arial";
+  ctx.fillText(
+    "💰 " + (price || "Special Price"),
+    540,
+    920
+  );
+
+  ctx.font = "bold 45px Arial";
+  ctx.fillText("🛒 अभी Order करें!", 540, 990);
+
+  document.getElementById("downloadAd").style.display = "block";
+
+  alert("✅ Advertisement Image तैयार है!");
+}
+
+
+function downloadAdImage() {
+
+  const canvas = document.getElementById("adCanvas");
+
+  const link = document.createElement("a");
+
+  link.download = "AdMakerAI-Advertisement.png";
+
+  link.href = canvas.toDataURL("image/png");
+
+  link.click();
 
 }
 
