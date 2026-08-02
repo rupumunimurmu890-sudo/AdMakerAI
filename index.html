@@ -14,110 +14,236 @@
 <meta name="twitter:description" content="Create beautiful product advertisements with AdMakerAI.">
 
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
 
-    body {
-  background: linear-gradient(135deg, #eef2ff, #e0e7ff, #f5f3ff);
-  color: #172033;
+body {
+  background:
+    radial-gradient(circle at 10% 20%, rgba(100, 40, 255, .35), transparent 30%),
+    radial-gradient(circle at 90% 10%, rgba(0, 100, 255, .30), transparent 30%),
+    linear-gradient(135deg, #050018, #10002f 45%, #030b2e);
+  color: #fff;
   padding: 20px;
   min-height: 100vh;
-    }
+}
 
-    .app {
-  max-width: 600px;
+.app {
+  max-width: 650px;
   margin: auto;
-  background: rgba(255, 255, 255, 0.96);
-  padding: 25px;
-  border-radius: 24px;
-  box-shadow: 0 10px 35px rgba(60, 50, 150, 0.18);
-    }
+  padding: 28px;
+  border-radius: 28px;
+  background: rgba(10, 5, 45, .88);
+  border: 1px solid rgba(168, 72, 255, .75);
+  box-shadow:
+    0 0 25px rgba(119, 35, 255, .35),
+    0 20px 60px rgba(0, 0, 0, .5);
+}
 
-    h1 {
-      text-align: center;
-      margin-bottom: 8px;
-    }
+h1 {
+  text-align: center;
+  font-size: 38px;
+  margin-bottom: 5px;
+  background: linear-gradient(90deg, #fff, #b66cff, #6f8cff);
+  -webkit-background-clip: text;
+  color: transparent;
+}
 
-    .subtitle {
-      text-align: center;
-      color: #666;
-      margin-bottom: 25px;
-    }
+.subtitle {
+  text-align: center;
+  color: #d5c9ff;
+  font-size: 17px;
+  margin-bottom: 28px;
+}
 
-    label {
-      display: block;
-      font-weight: bold;
-      margin: 15px 0 8px;
-    }
+label {
+  display: block;
+  font-weight: bold;
+  margin: 20px 0 9px;
+  color: #fff;
+  font-size: 16px;
+}
 
-    input, textarea, select {
-      width: 100%;
-      padding: 13px;
-      border: 1px solid #ddd;
-      border-radius: 10px;
-      font-size: 16px;
-    }
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 15px;
+  border: 1px solid #6544a8;
+  border-radius: 13px;
+  font-size: 16px;
+  color: white;
+  background: rgba(18, 10, 65, .9);
+  outline: none;
+}
 
-    textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: #b45cff;
+  box-shadow: 0 0 12px rgba(180, 92, 255, .35);
+}
 
-    .upload {
-      border: 2px dashed #777;
-      padding: 25px;
-      text-align: center;
-      border-radius: 12px;
-      cursor: pointer;
-    }
+input::placeholder,
+textarea::placeholder {
+  color: #aaa0c5;
+}
 
-    .preview {
-      width: 100%;
-      max-height: 300px;
-      object-fit: contain;
-      margin-top: 15px;
-      border-radius: 12px;
-      display: none;
-    }
+textarea {
+  min-height: 110px;
+  resize: vertical;
+}
 
-    button {
-      width: 100%;
-      margin-top: 22px;
-      padding: 15px;
-      border: none;
-      border-radius: 12px;
-      background: #5b35f5;
-      color: white;
-      font-size: 17px;
-      font-weight: bold;
-      cursor: pointer;
-    }
+.upload {
+  min-height: 150px;
+  padding: 45px 20px;
+  text-align: center;
+  border: 2px dashed #a34cff;
+  border-radius: 18px;
+  cursor: pointer;
+  color: #e5d8ff;
+  background: rgba(83, 32, 160, .16);
+  transition: .2s;
+}
 
-    button:active {
-      transform: scale(.98);
-    }
+.upload:hover {
+  background: rgba(120, 50, 220, .25);
+  box-shadow: 0 0 20px rgba(157, 65, 255, .3);
+}
 
-    .result {
-      margin-top: 25px;
-      padding: 18px;
-      background: #f5f5f5;
-      border-radius: 12px;
-      display: none;
-    }
+.preview {
+  width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  margin-top: 15px;
+  border-radius: 16px;
+  border: 1px solid #7d4dff;
+  background: #08021f;
+  display: none;
+}
 
-    .result h2 {
-      margin-bottom: 12px;
-    }
+button {
+  width: 100%;
+  margin-top: 20px;
+  padding: 16px;
+  border: none;
+  border-radius: 13px;
+  background: linear-gradient(90deg, #7b16ff, #b42cff, #603cff);
+  color: white;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 7px 20px rgba(112, 36, 255, .35);
+  transition: .2s;
+}
 
-    .script {
-      line-height: 1.6;
-      white-space: pre-line;
-    }
-  </style>
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(151, 50, 255, .5);
+}
+
+button:active {
+  transform: scale(.98);
+}
+
+#orderButton {
+  background: linear-gradient(90deg, #00a86b, #16c784);
+}
+
+.result {
+  margin-top: 28px;
+  padding: 20px;
+  background: rgba(255, 255, 255, .07);
+  border: 1px solid rgba(165, 82, 255, .5);
+  border-radius: 18px;
+  display: none;
+}
+
+.result h2 {
+  margin-bottom: 15px;
+  color: #d9b6ff;
+}
+
+.script {
+  line-height: 1.7;
+  white-space: pre-line;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, .25);
+}
+
+#shareButtons {
+  margin-top: 15px;
+}
+
+#shareButtons button {
+  margin-top: 10px;
+}
+
+#shareButtons button:nth-child(1) {
+  background: #16a05d;
+}
+
+#shareButtons button:nth-child(2) {
+  background: #1877f2;
+}
+
+#shareButtons button:nth-child(3) {
+  background: #229ed9;
+}
+
+#shareButtons button:nth-child(4) {
+  background: #bd1e59;
+}
+
+#shareButtons button:nth-child(5) {
+  background: linear-gradient(90deg, #833ab4, #fd1d1d, #fcb045);
+}
+
+canvas {
+  max-width: 100%;
+  border-radius: 15px;
+  margin-top: 15px;
+}
+
+body > p {
+  color: #c9b9e8 !important;
+}
+
+@media (max-width: 600px) {
+
+  body {
+    padding: 10px;
+  }
+
+  .app {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  h1 {
+    font-size: 32px;
+  }
+
+  .upload {
+    min-height: 130px;
+    padding: 38px 15px;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 15px;
+  }
+
+  button {
+    font-size: 16px;
+  }
+}
+</style>
 </head>
 
 <body>
