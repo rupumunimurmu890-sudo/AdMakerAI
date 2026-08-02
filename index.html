@@ -486,6 +486,7 @@ function copyAdvertisement() {
 }
 
 
+
 function createAdImage() {
 
   const product = document.getElementById("productName").value.trim();
@@ -503,61 +504,87 @@ function createAdImage() {
   canvas.width = 1080;
   canvas.height = 1080;
 
-  ctx.fillStyle = "#f5f5f5";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  const backgroundFile =
+    document.getElementById("backgroundInput").files[0];
 
-  ctx.fillStyle = "#111111";
-  ctx.font = "bold 70px Arial";
-  ctx.textAlign = "center";
-  ctx.fillText("🎬 AdMakerAI", 540, 100);
+  const productFile =
+    document.getElementById("imageInput").files[0];
 
-  ctx.font = "bold 55px Arial";
-  ctx.fillText(product, 540, 190);
 
-  const file = document.getElementById("imageInput").files[0];
+  function drawProduct() {
 
-  if (file) {
+    if (productFile) {
 
-    const img = new Image();
+      const img = new Image();
 
-    img.onload = function () {
+      img.onload = function () {
 
-      const maxWidth = 800;
-      const maxHeight = 520;
+        const maxWidth = 800;
+        const maxHeight = 520;
 
-      let width = img.width;
-      let height = img.height;
+        let width = img.width;
+        let height = img.height;
 
-      const ratio = Math.min(
-        maxWidth / width,
-        maxHeight / height
-      );
+        const ratio = Math.min(
+          maxWidth / width,
+          maxHeight / height
+        );
 
-      width *= ratio;
-      height *= ratio;
+        width *= ratio;
+        height *= ratio;
 
-      ctx.drawImage(
-        img,
-        (1080 - width) / 2,
-        240,
-        width,
-        height
-      );
+        ctx.drawImage(
+          img,
+          (1080 - width) / 2,
+          240,
+          width,
+          height
+        );
+
+        finishAdImage(ctx, product, price, details);
+
+      };
+
+      img.src = URL.createObjectURL(productFile);
+
+    } else {
 
       finishAdImage(ctx, product, price, details);
 
+    }
+  }
+
+
+  if (backgroundFile) {
+
+    const bgImg = new Image();
+
+    bgImg.onload = function () {
+
+      ctx.drawImage(
+        bgImg,
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+
+      drawProduct();
+
     };
 
-    img.src = URL.createObjectURL(file);
+    bgImg.src = URL.createObjectURL(backgroundFile);
 
   } else {
 
-    finishAdImage(ctx, product, price, details);
+    ctx.fillStyle = "#f5f5f5";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    drawProduct();
 
   }
 
 }
-
 
 function finishAdImage(ctx, product, price, details) {
 
