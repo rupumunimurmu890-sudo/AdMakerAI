@@ -631,6 +631,61 @@ function finishAdImage(ctx, product, price, details) {
   alert("✅ Advertisement Image तैयार है!");
 
 }
+  async function shareAdImage() {
+
+  const canvas = document.getElementById("adCanvas");
+
+  if (!canvas || canvas.width === 0) {
+    alert("पहले Advertisement Image बनाइए।");
+    return;
+  }
+
+  try {
+
+    const blob = await new Promise(resolve =>
+      canvas.toBlob(resolve, "image/png")
+    );
+
+    if (!blob) {
+      alert("Image तैयार नहीं हो पाई।");
+      return;
+    }
+
+    const file = new File(
+      [blob],
+      "AdMakerAI-Advertisement.png",
+      { type: "image/png" }
+    );
+
+    if (
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({ files: [file] })
+    ) {
+
+      await navigator.share({
+        title: "AdMakerAI - AI Advertisement Maker",
+        text: "Created with AdMakerAI",
+        files: [file]
+      });
+
+    } else {
+
+      alert(
+        "आपके browser में image sharing supported नहीं है। पहले Download Advertisement करें।"
+      );
+
+    }
+
+  } catch (error) {
+
+    if (error.name !== "AbortError") {
+      alert("Image share नहीं हो पाई।");
+    }
+
+  }
+
+  }
 
 
 function downloadAdImage() {
