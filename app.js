@@ -237,3 +237,5 @@ async function createAdVideo() {
     }
   }
 }
+
+window.createAdVideo = createAdVideo;
