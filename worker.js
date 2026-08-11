@@ -1,9 +1,26 @@
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type"
+};
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
 
+    // OPTIONS / CORS
+    if (request.method === "OPTIONS") {
+      return new Response(null, {
+        status: 204,
+        headers: corsHeaders
+      });
+    }
+
     // 🎬 AI Advertisement Video API
-    if (url.pathname === "/api/generate-video" && request.method === "POST") {
+    if (
+      url.pathname === "/api/generate-video" &&
+      request.method === "POST"
+    ) {
       try {
         const body = await request.json();
 
@@ -15,48 +32,45 @@ export default {
         } = body;
 
         if (!productName || !productDescription) {
-          return new Response(
-            JSON.stringify({
+          return Response.json(
+            {
+              success: false,
               error: "Product name and description are required."
-            }),
+            },
             {
               status: 400,
-              headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*"
-              }
+              headers: corsHeaders
             }
           );
         }
 
         const prompt = `
-Create a professional vertical advertisement video for this product.
+Create a professional product advertisement video.
 
-Product: ${productName}
+Product name: ${productName}
 
 Product details:
 ${productDescription}
 
 Advertisement script:
-${script || ""}
+${script || "Create a short attractive advertisement."}
 
-Create an attractive commercial-style product advertisement.
-Show the product clearly.
-Use smooth camera movement, realistic lighting, attractive visuals,
-and a professional advertising style.
-Make it suitable for Instagram Reels, YouTube Shorts and WhatsApp.
+Show the product clearly and professionally.
+Use realistic lighting and smooth cinematic camera movement.
+Create an attractive commercial advertisement suitable for
+Instagram Reels, YouTube Shorts, Facebook and WhatsApp.
 `;
 
         const input = {
           prompt: prompt,
           duration: 5,
+          fps: 24,
           resolution: "720p",
-          aspect_ratio: "9:16",
           draft: false,
           save_audio: true
         };
 
-        // Product image को video में इस्तेमाल करें
+        // Product image हो तो Image-to-Video
         if (image) {
           input.image = image;
         }
@@ -66,49 +80,49 @@ Make it suitable for Instagram Reels, YouTube Shorts and WhatsApp.
           input
         );
 
-        return new Response(
-          JSON.stringify({
+        console.log(
+          "P-Video result:",
+          JSON.stringify(result)
+        );
+
+        const videoUrl =
+          result?.video ||
+          result?.result?.video ||
+          result?.url ||
+          null;
+
+        return Response.json(
+          {
             success: true,
-            video: result?.video || result?.result?.video || null,
+            video: videoUrl,
             result: result
-          }),
+          },
           {
             status: 200,
-            headers: {
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": "*"
-            }
+            headers: corsHeaders
           }
         );
 
       } catch (error) {
-        console.error("Video generation error:", error);
+        console.error(
+          "Video generation error:",
+          error
+        );
 
-        return new Response(
-          JSON.stringify({
+        return Response.json(
+          {
             success: false,
-            error: error.message || "Video generation failed."
-          }),
+            error:
+              error?.message ||
+              String(error) ||
+              "Video generation failed."
+          },
           {
             status: 500,
-            headers: {
-              "Content-Type": "application/json",
-              "Access-Control-Allow-Origin": "*"
-            }
+            headers: corsHeaders
           }
         );
       }
-    }
-
-    // OPTIONS / CORS
-    if (request.method === "OPTIONS") {
-      return new Response(null, {
-        headers: {
-          "Access-Control-Allow-Origin": "*",
-          "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type"
-        }
-      });
     }
 
     // बाकी website files serve करें
@@ -116,8 +130,11 @@ Make it suitable for Instagram Reels, YouTube Shorts and WhatsApp.
       return env.ASSETS.fetch(request);
     }
 
-    return new Response("AdMakerAI Worker is running.", {
-      status: 200
-    });
+    return new Response(
+      "AdMakerAI Worker is running.",
+      {
+        status: 200
+      }
+    );
   }
 };
