@@ -56,7 +56,6 @@ form.addEventListener("submit", async function (e) {
 // ========================================
 
 async function createAdVideo() {
-  alert("🎬 Video button clicked!");
   const productName =
     document.getElementById("productName").value.trim();
 
