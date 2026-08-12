@@ -717,78 +717,115 @@ function downloadAdImage() {
 }
 
 
-function shareWhatsApp() {
+// ========================================
+// 📤 SHARE ADVERTISEMENT IMAGE + TEXT
+// ========================================
 
-  const text = document.getElementById("script").textContent;
+async function shareAdvertisement() {
 
-  window.open(
-    "https://wa.me/?text=" + encodeURIComponent(text),
-    "_blank"
-  );
+  const canvas = document.getElementById("adCanvas");
 
-}
+  if (!canvas) {
+    alert("❌ Advertisement image नहीं मिली।");
+    return;
+  }
 
+  const scriptElement = document.getElementById("script");
 
-function shareFacebook() {
+  const text = scriptElement
+    ? scriptElement.textContent.trim()
+    : "AdMakerAI Advertisement";
 
-  const url = window.location.href;
+  try {
 
-  window.open(
-    "https://www.facebook.com/sharer/sharer.php?u=" +
-    encodeURIComponent(url),
-    "_blank"
-  );
+    const blob = await new Promise((resolve, reject) => {
 
-}
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(new Error("Image तैयार नहीं हो पाई।"));
+          }
+        },
+        "image/png"
+      );
 
+    });
 
-function shareTelegram() {
-
-  const text = document.getElementById("script").textContent;
-  const url = window.location.href;
-
-  window.open(
-    "https://t.me/share/url?url=" +
-    encodeURIComponent(url) +
-    "&text=" +
-    encodeURIComponent(text),
-    "_blank"
-  );
-
-}
-
-
-function sharePinterest() {
-
-  const url = window.location.href;
-
-  window.open(
-    "https://www.pinterest.com/pin/create/button/?url=" +
-    encodeURIComponent(url),
-    "_blank"
-  );
-
-}
-
-
-function shareInstagram() {
-
-  const text = document.getElementById("script").textContent;
-
-  navigator.clipboard.writeText(text).then(function() {
-
-    alert(
-      "✅ Advertisement copied! अब Instagram खोलें और पोस्ट/स्टोरी में इसे इस्तेमाल करें।"
+    const file = new File(
+      [blob],
+      "AdMakerAI-Advertisement.png",
+      {
+        type: "image/png"
+      }
     );
 
-    window.open("https://www.instagram.com/", "_blank");
+    if (
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({ files: [file] })
+    ) {
 
-  }).catch(function() {
+      await navigator.share({
+        title: "AdMakerAI Advertisement",
+        text: text,
+        files: [file]
+      });
 
-    window.open("https://www.instagram.com/", "_blank");
+      return;
+    }
 
-  });
+    if (navigator.share) {
 
+      await navigator.share({
+        title: "AdMakerAI Advertisement",
+        text: text
+      });
+
+      return;
+    }
+
+    alert(
+      "इस browser में image sharing उपलब्ध नहीं है। Android Chrome में खोलें।"
+    );
+
+  } catch (error) {
+
+    if (error.name !== "AbortError") {
+
+      console.error("Advertisement Share Error:", error);
+
+      alert("❌ Advertisement share नहीं हो पाई।");
+
+    }
+
+  }
+}
+
+
+// ========================================
+// 📱 SOCIAL MEDIA SHARE
+// ========================================
+
+function shareWhatsApp() {
+  shareAdvertisement();
+}
+
+function shareFacebook() {
+  shareAdvertisement();
+}
+
+function shareTelegram() {
+  shareAdvertisement();
+}
+
+function sharePinterest() {
+  shareAdvertisement();
+}
+
+function shareInstagram() {
+  shareAdvertisement();
 }
 
 </script>
