@@ -1,8 +1,15 @@
-const form = document.getElementById("adForm");
-const resultBox = document.getElementById("result");
-const resultText = document.getElementById("script");
+document.addEventListener("DOMContentLoaded", function () {
 
-form.addEventListener("submit", async function (e) {
+  const form = document.getElementById("adForm");
+  const resultBox = document.getElementById("result");
+  const resultText = document.getElementById("script");
+
+  if (!form) {
+    console.error("AdMakerAI: adForm नहीं मिला।");
+    return;
+  }
+
+  form.addEventListener("submit", async function (e) {
   e.preventDefault();
 
   const productName = document.getElementById("productName").value.trim();
