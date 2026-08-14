@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", function () {
       document.getElementById("productName")?.value.trim() || "";
 
     const productDescription =
-      document.getElementById("productDescription")?.value.trim() || "";
+  document.getElementById("details")?.value.trim() || "";
 
     const adStyle =
       document.getElementById("adStyle")?.value || "";
@@ -321,8 +321,9 @@ if (
       : "";
 
   const imageInput =
-    document.getElementById("productImage") ||
-    document.getElementById("productImageInput");
+  document.getElementById("imageInput");
+
+if (!productName || !productDescription) {
 
   if (!productName || !productDescription) {
 
