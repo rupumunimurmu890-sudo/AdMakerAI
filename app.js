@@ -195,7 +195,7 @@ async function createAdImage() {
     document.getElementById("productName")?.value.trim() || "";
 
   const productDescription =
-    document.getElementById("productDescription")?.value.trim() || "";
+  document.getElementById("details")?.value.trim() || "";
 
   const price =
     document.getElementById("price")?.value.trim() || "";
