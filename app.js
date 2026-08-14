@@ -324,9 +324,7 @@ if (
   document.getElementById("imageInput");
 
 if (!productName || !productDescription) {
-
-  if (!productName || !productDescription) {
-
+  
     alert(
       "Please enter product name and product description."
     );
