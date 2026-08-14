@@ -321,7 +321,9 @@ if (
       : "";
 
   const imageInput =
-  document.getElementById("imageInput");
+  document.getElementById("imageInput") ||
+  document.getElementById("productImage") ||
+  document.getElementById("productImageInput");
 
 if (!productName || !productDescription) {
   
