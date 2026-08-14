@@ -565,6 +565,32 @@ async function createAdVideo() {
     }
   }
 }
+function copyAdvertisement() {
 
+  const scriptElement = document.getElementById("script");
+
+  if (!scriptElement) {
+    alert("Advertisement text नहीं मिला।");
+    return;
+  }
+
+  const text = scriptElement.textContent.trim();
+
+  if (!text) {
+    alert("पहले Advertisement generate करें।");
+    return;
+  }
+
+  navigator.clipboard.writeText(text)
+    .then(function () {
+      alert("✅ Advertisement copied successfully!");
+    })
+    .catch(function (error) {
+      console.error("Copy Error:", error);
+      alert("❌ Advertisement copy नहीं हो पाया।");
+    });
+}
+
+window.copyAdvertisement = copyAdvertisement;
 window.createAdVideo = createAdVideo;
 });
