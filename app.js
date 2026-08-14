@@ -52,7 +52,7 @@ document.addEventListener("DOMContentLoaded", function () {
     try {
 
       const response = await fetch(
-        "/.netlify/functions/generate-ad",
+  "/api/generate-ad",
         {
           method: "POST",
 
