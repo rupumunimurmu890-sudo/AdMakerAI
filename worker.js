@@ -222,7 +222,166 @@ Instagram Reels, YouTube Shorts, Facebook and WhatsApp.
 
     }
 
+// ========================================
+// 📢 AI ADVERTISEMENT TEXT GENERATION
+// ========================================
 
+if (
+  url.pathname === "/api/generate-ad" &&
+  request.method === "POST"
+) {
+
+  try {
+
+    const body = await request.json();
+
+    const {
+      productName,
+      productDescription,
+      adStyle,
+      language
+    } = body;
+
+
+    // ------------------------------------
+    // Validation
+    // ------------------------------------
+
+    if (!productName || !productDescription) {
+
+      return Response.json(
+        {
+          success: false,
+          error:
+            "Product name and description are required."
+        },
+        {
+          status: 400,
+          headers: corsHeaders
+        }
+      );
+
+    }
+
+
+    // ------------------------------------
+    // 🤖 AI PROMPT
+    // ------------------------------------
+
+    const prompt = `
+You are a professional advertising copywriter.
+
+Create an attractive and persuasive advertisement
+for the following product.
+
+IMPORTANT LANGUAGE RULE:
+Write the COMPLETE advertisement in the selected language.
+Do not translate only some parts.
+Do not mix languages unless the selected language is Hinglish.
+
+Selected language:
+${language || "English"}
+
+Product name:
+${productName}
+
+Product description:
+${productDescription}
+
+Advertisement style:
+${adStyle || "Professional and attractive"}
+
+Create a ready-to-use advertisement suitable for
+WhatsApp, Facebook, Instagram and other social media.
+
+Include:
+- Attractive headline
+- Main product benefits
+- Short persuasive description
+- Call to action
+
+Keep it clear, natural and engaging.
+
+Do not explain what you are doing.
+Return ONLY the final advertisement text.
+`;
+
+
+    // ------------------------------------
+    // 🤖 CLOUDFLARE WORKERS AI
+    // ------------------------------------
+
+    const result = await env.AI.run(
+      "@cf/zai-org/glm-4.7-flash",
+      {
+        prompt: prompt,
+        max_tokens: 1000,
+        temperature: 0.8
+      }
+    );
+
+
+    // ------------------------------------
+    // 📝 AI RESPONSE
+    // ------------------------------------
+
+    const advertisement =
+      result?.response ||
+      result?.result ||
+      result?.text ||
+      "";
+
+
+    if (!advertisement) {
+
+      throw new Error(
+        "AI advertisement response नहीं मिला।"
+      );
+
+    }
+
+
+    // ------------------------------------
+    // RESPONSE
+    // ------------------------------------
+
+    return Response.json(
+      {
+        success: true,
+        ad: advertisement
+      },
+      {
+        status: 200,
+        headers: corsHeaders
+      }
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Advertisement generation error:",
+      error
+    );
+
+
+    return Response.json(
+      {
+        success: false,
+        error:
+          error?.message ||
+          String(error) ||
+          "Advertisement generation failed."
+      },
+      {
+        status: 500,
+        headers: corsHeaders
+      }
+    );
+
+  }
+
+}
     // ------------------------------------
     // 🌐 WEBSITE FILES
     // ------------------------------------
