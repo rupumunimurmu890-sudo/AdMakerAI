@@ -200,6 +200,118 @@ async function createAdImage() {
   const price =
     document.getElementById("price")?.value.trim() || "";
 
+  // ========================================
+// 🌍 MULTI-LANGUAGE TEXT
+// ========================================
+
+const selectedLanguage =
+  document.getElementById("language")?.value || "";
+
+const lang = selectedLanguage.toLowerCase();
+
+let orderText = "🛒 अभी Order करें!";
+let adTitle = "🖼️ Advertisement Image";
+
+if (
+  lang.includes("english") ||
+  lang === "en"
+) {
+  orderText = "🛒 Order Now!";
+  adTitle = "🖼️ Advertisement Image";
+
+} else if (
+  lang.includes("bengali") ||
+  lang.includes("bangla") ||
+  lang === "bn"
+) {
+  orderText = "🛒 এখনই অর্ডার করুন!";
+  adTitle = "🖼️ বিজ্ঞাপন ছবি";
+
+} else if (
+  lang.includes("tamil") ||
+  lang === "ta"
+) {
+  orderText = "🛒 இப்போதே ஆர்டர் செய்யுங்கள்!";
+  adTitle = "🖼️ விளம்பர படம்";
+
+} else if (
+  lang.includes("telugu") ||
+  lang === "te"
+) {
+  orderText = "🛒 ఇప్పుడే ఆర్డర్ చేయండి!";
+  adTitle = "🖼️ ప్రకటన చిత్రం";
+
+} else if (
+  lang.includes("marathi") ||
+  lang === "mr"
+) {
+  orderText = "🛒 आत्ताच ऑर्डर करा!";
+  adTitle = "🖼️ जाहिरात प्रतिमा";
+
+} else if (
+  lang.includes("gujarati") ||
+  lang === "gu"
+) {
+  orderText = "🛒 હમણાં ઓર્ડર કરો!";
+  adTitle = "🖼️ જાહેરાત છબી";
+
+} else if (
+  lang.includes("punjabi") ||
+  lang === "pa"
+) {
+  orderText = "🛒 ਹੁਣੇ ਆਰਡਰ ਕਰੋ!";
+  adTitle = "🖼️ ਇਸ਼ਤਿਹਾਰ ਤਸਵੀਰ";
+
+} else if (
+  lang.includes("kannada") ||
+  lang === "kn"
+) {
+  orderText = "🛒 ಈಗಲೇ ಆರ್ಡರ್ ಮಾಡಿ!";
+  adTitle = "🖼️ ಜಾಹೀರಾತು ಚಿತ್ರ";
+
+} else if (
+  lang.includes("malayalam") ||
+  lang === "ml"
+) {
+  orderText = "🛒 ഇപ്പോൾ തന്നെ ഓർഡർ ചെയ്യൂ!";
+  adTitle = "🖼️ പരസ്യ ചിത്രം";
+
+} else if (
+  lang.includes("french") ||
+  lang === "fr"
+) {
+  orderText = "🛒 Commandez maintenant !";
+  adTitle = "🖼️ Image publicitaire";
+
+} else if (
+  lang.includes("spanish") ||
+  lang === "es"
+) {
+  orderText = "🛒 ¡Ordena ahora!";
+  adTitle = "🖼️ Imagen publicitaria";
+
+} else if (
+  lang.includes("german") ||
+  lang === "de"
+) {
+  orderText = "🛒 Jetzt bestellen!";
+  adTitle = "🖼️ Werbebild";
+
+} else if (
+  lang.includes("arabic") ||
+  lang === "ar"
+) {
+  orderText = "🛒 اطلب الآن!";
+  adTitle = "🖼️ صورة إعلانية";
+
+} else if (
+  lang.includes("indonesian") ||
+  lang.includes("bahasa") ||
+  lang === "id"
+) {
+  orderText = "🛒 Pesan Sekarang!";
+  adTitle = "🖼️ Gambar Iklan";
+}
   const scriptElement =
     document.getElementById("script");
 
@@ -456,7 +568,7 @@ async function createAdImage() {
         "#ffd700";
 
       ctx.font =
-        "bold 55px Arial";
+  "bold 55px 'Noto Sans', Arial, sans-serif";
 
       ctx.fillText(
         "₹ " + price,
@@ -498,12 +610,12 @@ async function createAdImage() {
     ctx.font =
       "bold 38px Arial";
 
-    ctx.fillText(
-      "🛒 अभी Order करें!",
-      540,
-      910
-    );
-
+    
+ctx.fillText(
+  orderText,
+  540,
+  910
+);
 
     // ------------------------------------
     // Branding
@@ -593,7 +705,7 @@ async function createAdImage() {
 
 
     container.innerHTML = `
-      <h2>🖼️ Advertisement Image</h2>
+      <h2>${adTitle}</h2>
 
       <img
         id="generatedAdImage"
