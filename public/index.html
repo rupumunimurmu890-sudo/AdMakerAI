@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>AdMakerAI - AI Advertisement Maker</title>
+
+<!-- Basic SEO -->
+<meta name="description" content="AdMakerAI से अपने प्रोडक्ट्स के लिए आकर्षक विज्ञापन और इमेज बनाएं।">
+
+<!-- Open Graph / Facebook / WhatsApp -->
+<meta property="og:title" content="AdMakerAI - 1 मिनट में विज्ञापन बनाएं">
+<meta property="og:description" content="अपने प्रोडक्ट्स के लिए आकर्षक विज्ञापन और इमेज बनाएं।">
+<meta property="og:image" content="https://i.ibb.co/W4yk2G5S/file-00000000469082119fefa5fdee1304e0-2.jpg">
+<meta property="og:url" content="https://admakerai.rupumunimurmu890.workers.dev">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AdMakerAI">
+
+<!-- Twitter / X -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AdMakerAI - AI Advertisement Maker">
+<meta name="twitter:description" content="Create beautiful product advertisements with AdMakerAI.">
+<meta name="twitter:image" content="https://i.ibb.co/W4yk2G5S/file-00000000469082119fefa5fdee1304e0-2.jpg">
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <div class="app">
+
+    <h1>🎬 AdMakerAI</h1>
+    <p class="subtitle">AI Advertisement Maker</p>
+
+    <form id="adForm">
+
+      <label>📷 Product Image</label>
+
+      <div class="upload" onclick="document.getElementById('imageInput').click()">
+        Tap to upload product image
+      </div>
+
+      <input
+        type="file"
+        id="imageInput"
+        accept="image/*"
+        style="display:none"
+      >
+
+      <img id="preview" class="preview">
+
+      <label>🛍️ Product Name</label>
+      <input
+        type="text"
+        id="productName"
+        placeholder="Example: Britannia Winkin Cow Lassi"
+      >
+
+      <label>💰 Price</label>
+      <input
+        type="text"
+        id="price"
+        placeholder="Example: ₹20"
+      >
+
+      <label>📝 Product Details</label>
+      <textarea
+        id="details"
+        placeholder="Product ke baare mein short details likhiye..."
+      ></textarea>
+
+      <label>🔗 Affiliate / Reselling / Product Link</label>
+
+      <input
+        type="url"
+        id="productLink"
+        placeholder="https://example.com/product-link"
+      >
+
+      <label>🎨 Advertisement Style</label>
+
+      <select id="adStyle">
+        <option value="Professional and attractive">Professional</option>
+        <option value="Fun and casual">Fun &amp; Casual</option>
+        <option value="Luxury and premium">Luxury / Premium</option>
+        <option value="Minimal and clean">Minimal</option>
+        <option value="Bold and energetic">Bold &amp; Energetic</option>
+        <option value="Festive sale/discount focused">Festive / Sale</option>
+      </select>
+
+      <label>🎯 Advertisement Language</label>
+
+      <select id="language">
+        <option value="Hindi">Hindi (हिन्दी)</option>
+        <option value="English">English</option>
+        <option value="Hinglish">Hinglish</option>
+
+        <option value="Bengali">Bengali (বাংলা)</option>
+        <option value="Santali">Santali (ᱥᱟᱱᱛᱟᱲᱤ)</option>
+        <option value="Marathi">Marathi (मराठी)</option>
+        <option value="Gujarati">Gujarati (ગુજરાતી)</option>
+        <option value="Punjabi">Punjabi (ਪੰਜਾਬੀ)</option>
+        <option value="Tamil">Tamil (தமிழ்)</option>
+        <option value="Telugu">Telugu (తెలుగు)</option>
+        <option value="Kannada">Kannada (ಕನ್ನಡ)</option>
+        <option value="Malayalam">Malayalam (മലയാളം)</option>
+        <option value="Odia">Odia (ଓଡ଼ିଆ)</option>
+        <option value="Assamese">Assamese (অসমীয়া)</option>
+        <option value="Urdu">Urdu (اردو)</option>
+
+        <option value="Nepali">Nepali (नेपाली)</option>
+        <option value="Maithili">Maithili (मैथिली)</option>
+        <option value="Kashmiri">Kashmiri (कॉशुर)</option>
+        <option value="Konkani">Konkani (कोंकणी)</option>
+        <option value="Sindhi">Sindhi (सिन्धी)</option>
+        <option value="Sanskrit">Sanskrit (संस्कृतम्)</option>
+
+        <option value="French">French (Français)</option>
+        <option value="Spanish">Spanish (Español)</option>
+        <option value="German">German (Deutsch)</option>
+        <option value="Portuguese">Portuguese (Português)</option>
+        <option value="Italian">Italian (Italiano)</option>
+        <option value="Arabic">Arabic (العربية)</option>
+        <option value="Indonesian">Indonesian (Bahasa Indonesia)</option>
+        <option value="Turkish">Turkish (Türkçe)</option>
+        <option value="Russian">Russian (Русский)</option>
+        <option value="Japanese">Japanese (日本語)</option>
+        <option value="Korean">Korean (한국어)</option>
+        <option value="Chinese">Chinese (中文)</option>
+      </select>
+
+      <button type="submit">
+        ✨ Generate Advertisement
+      </button>
+
+      <button id="orderButton" style="display:none;" type="button">
+        🛒 Order Now
+      </button>
+
+    </form>
+
+    <div id="result" class="result">
+      <h2>🎬 Advertisement Script</h2>
+      <div id="script" class="script"></div>
+
+      <button type="button" onclick="copyAdvertisement()">
+        📋 Copy Advertisement
+      </button>
+
+      <button type="button" onclick="createAdImage()">
+        🖼️ Create Advertisement Image
+      </button>
+
+      <button type="button" onclick="createAdVideo()">
+        🎬 Create Advertisement Video
+      </button>
+
+      <div id="shareButtons">
+
+        <button type="button" onclick="shareWhatsApp()">
+          🟢 Share on WhatsApp
+        </button>
+
+        <button type="button" onclick="shareFacebook()">
+          🔵 Share on Facebook
+        </button>
+
+        <button type="button" onclick="shareTelegram()">
+          🔷 Share on Telegram
+        </button>
+
+        <button type="button" onclick="sharePinterest()">
+          📌 Share on Pinterest
+        </button>
+
+        <button type="button" onclick="shareInstagram()">
+          📸 Share on Instagram
+        </button>
+
+      </div>
+    </div>
+
+  </div>
+<p style="text-align:center; margin-top:20px; color:#666; font-size:14px;">
+  🎬 AdMakerAI<br>
+  © 2026 Santosh Marandi
+</p>
+
+
+<script>
+
+const imageInput = document.getElementById("imageInput");
+const preview = document.getElementById("preview");
+
+imageInput.addEventListener("change", function () {
+  const file = this.files[0];
+
+  if (file) {
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+  }
+});
+
+
+// ========================================
+// 📤 SHARE ADVERTISEMENT (image + text)
+// Uses whichever advertisement image app.js
+// most recently generated (#generatedAdImage).
+// Falls back to text-only share if no image
+// has been generated yet.
+// ========================================
+
+async function shareAdvertisement() {
+
+  const scriptElement = document.getElementById("script");
+
+  const text = scriptElement
+    ? scriptElement.textContent.trim()
+    : "AdMakerAI Advertisement";
+
+  const imgElement = document.getElementById("generatedAdImage");
+
+  try {
+
+    let file = null;
+
+    if (imgElement && imgElement.src) {
+
+      const imgResponse = await fetch(imgElement.src);
+      const blob = await imgResponse.blob();
+
+      file = new File(
+        [blob],
+        "AdMakerAI-Advertisement.jpg",
+        { type: blob.type || "image/jpeg" }
+      );
+    }
+
+    if (
+      file &&
+      navigator.share &&
+      navigator.canShare &&
+      navigator.canShare({ files: [file] })
+    ) {
+
+      await navigator.share({
+        title: "AdMakerAI Advertisement",
+        text: text,
+        files: [file]
+      });
+
+      return;
+    }
+
+    if (navigator.share) {
+
+      await navigator.share({
+        title: "AdMakerAI Advertisement",
+        text: text
+      });
+
+      return;
+    }
+
+    alert(
+      "इस browser में sharing उपलब्ध नहीं है। Android Chrome में खोलें।"
+    );
+
+  } catch (error) {
+
+    if (error.name !== "AbortError") {
+
+      console.error("Advertisement Share Error:", error);
+
+      alert("❌ Advertisement share नहीं हो पाई।");
+    }
+  }
+}
+
+
+// ========================================
+// 📱 SOCIAL MEDIA SHARE
+// ========================================
+
+function shareWhatsApp() {
+  shareAdvertisement();
+}
+
+function shareFacebook() {
+  shareAdvertisement();
+}
+
+function shareTelegram() {
+  shareAdvertisement();
+}
+
+function sharePinterest() {
+  shareAdvertisement();
+}
+
+function shareInstagram() {
+  shareAdvertisement();
+}
+
+</script>
+
+<script src="app.js?v=3"></script>
+
+</body>
+</html>
