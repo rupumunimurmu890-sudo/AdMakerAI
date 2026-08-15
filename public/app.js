@@ -233,6 +233,8 @@ async function createAdImage() {
 
   const adStyle =
     document.getElementById("adStyle")?.value || "";
+    const affiliateLink =
+    document.getElementById("affiliateLink")?.value.trim() || "";
 
   // ========================================
 // 🌍 MULTI-LANGUAGE TEXT
@@ -817,36 +819,58 @@ ctx.fillText(
 
 
     container.innerHTML = `
-      <h2>${adTitle}</h2>
+  <h2>${adTitle}</h2>
 
-      <img
-        id="generatedAdImage"
-        src="${imageUrl}"
-        alt="Generated Advertisement"
-        style="
-          width:100%;
-          max-width:500px;
-          border-radius:15px;
-          display:block;
-          margin:15px auto;
-        "
-      >
+  <img
+    id="generatedAdImage"
+    src="${imageUrl}"
+    alt="Generated Advertisement"
+    style="
+      width:100%;
+      max-width:500px;
+      border-radius:15px;
+      display:block;
+      margin:15px auto;
+    "
+  >
 
-      <button
-        type="button"
-        id="downloadAdImage"
-        style="
-          width:100%;
-          margin-top:10px;
-          padding:14px;
-          border:0;
-          border-radius:10px;
-          cursor:pointer;
-        "
-      >
-        📥 Download Advertisement
-      </button>
-    `;
+  <a
+    href="${affiliateLink}"
+    target="_blank"
+    rel="noopener noreferrer"
+    style="
+      display:block;
+      width:100%;
+      box-sizing:border-box;
+      margin-top:10px;
+      padding:14px;
+      background:#16a34a;
+      color:white;
+      text-align:center;
+      text-decoration:none;
+      border-radius:10px;
+      font-weight:bold;
+      cursor:pointer;
+    "
+  >
+    🛒 Order Now
+  </a>
+
+  <button
+    type="button"
+    id="downloadAdImage"
+    style="
+      width:100%;
+      margin-top:10px;
+      padding:14px;
+      border:0;
+      border-radius:10px;
+      cursor:pointer;
+    "
+  >
+    📥 Download Advertisement
+  </button>
+`;
 
 
     resultBox.appendChild(
