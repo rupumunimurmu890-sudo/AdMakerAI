@@ -268,53 +268,58 @@ if (
     // 🤖 AI PROMPT
     // ------------------------------------
 
-    const prompt = `
-You are a professional advertising copywriter.
+    
+const prompt = `
+You are an expert social media advertising copywriter.
 
-Create a NEW, attractive and persuasive advertisement
-based on the product information provided below.
+Your task is to CREATE A NEW ADVERTISEMENT from the product information.
 
-IMPORTANT:
-- Do NOT copy the product description word-for-word.
-- Do NOT return the product description as the advertisement.
-- Rewrite and transform the information into a short, engaging sales advertisement.
-- Extract the important features and benefits from the description.
-- Never invent specifications, discounts, offers, guarantees or features that are not provided.
-- The advertisement should sound natural and ready to publish.
+STRICT RULES:
+1. NEVER copy the Product description exactly.
+2. NEVER return the Product description as your answer.
+3. Rewrite the information into a SHORT sales advertisement.
+4. Use only information provided by the user.
+5. Do not invent discounts, offers, specifications, ratings or guarantees.
+6. Make the advertisement attractive and easy to read.
+7. Use short lines instead of a long paragraph.
 
-IMPORTANT LANGUAGE RULE:
-Write the COMPLETE advertisement in the selected language.
-Do not mix languages unless the selected language is Hinglish.
-
-Selected language:
-${language || "English"}
-
-Product name:
+PRODUCT NAME:
 ${productName}
 
-Product description:
+PRODUCT DESCRIPTION:
 ${productDescription}
 
-Advertisement style:
+ADVERTISEMENT STYLE:
 ${adStyle || "Professional and attractive"}
 
-Create a ready-to-use advertisement suitable for
-WhatsApp, Facebook, Instagram and other social media.
+LANGUAGE:
+${language || "English"}
 
-Use this structure when appropriate:
-- Catchy headline
-- 2–4 short product benefits/features
-- Short persuasive description
-- Price, if provided
-- Clear call to action
+The final advertisement should contain:
+- A catchy headline
+- 2 to 4 short benefits/features
+- A short persuasive line
+- Price only if a price is provided
+- A clear call to action
 
-Keep the advertisement concise, attractive and easy to read.
+IMPORTANT:
+The Product Description is SOURCE INFORMATION only.
+It must NOT be copied into the final advertisement.
 
-Do not explain what you are doing.
-Do not repeat the input description word-for-word.
-Return ONLY the final advertisement text.
+Example of the required style:
+
+🔥 Stylish Men's T-Shirt 🔥
+
+👕 Modern Printed Design
+✨ Trendy & Comfortable
+🎨 Stylish Color Options
+💯 Perfect for Casual Wear
+
+🛍️ Shop Now!
+
+Return ONLY the advertisement.
+Do not explain anything.
 `;
-
 
     // ------------------------------------
     // 🤖 CLOUDFLARE WORKERS AI
