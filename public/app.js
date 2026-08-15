@@ -124,7 +124,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (resultText) {
         resultText.textContent =
-          "❌ AI से connection नहीं हो पाया। कृपया फिर से कोशिश करें।";
+          "❌ Error: " +
+          (error?.message || "AI से connection नहीं हो पाया।");
       }
     }
 
