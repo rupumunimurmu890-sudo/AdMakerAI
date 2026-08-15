@@ -1,3 +1,4 @@
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -223,6 +224,143 @@ Instagram Reels, YouTube Shorts, Facebook and WhatsApp.
     }
 
 // ========================================
+// 🖼️ AI ADVERTISEMENT BACKGROUND IMAGE (NEW)
+// ========================================
+
+if (
+  url.pathname === "/api/generate-background" &&
+  request.method === "POST"
+) {
+
+  try {
+
+    const body = await request.json();
+
+    const {
+      productName,
+      productDescription,
+      adStyle
+    } = body;
+
+
+    // ------------------------------------
+    // Validation
+    // ------------------------------------
+
+    if (!productName) {
+
+      return Response.json(
+        {
+          success: false,
+          error:
+            "Product name is required."
+        },
+        {
+          status: 400,
+          headers: corsHeaders
+        }
+      );
+
+    }
+
+
+    // ------------------------------------
+    // 🎯 BACKGROUND PROMPT
+    // ------------------------------------
+
+    const prompt = `
+Create a professional advertisement background image for a
+product named "${productName}".
+
+${productDescription ? "Product details: " + productDescription + "." : ""}
+
+Style:
+${adStyle || "modern, clean, professional, vibrant commercial"}
+
+IMPORTANT:
+- Do NOT include any product, object, person or logo in the image.
+- Do NOT include any text or watermarks.
+- Leave open, empty space in the center so a product photo can be
+  placed on top later.
+- Studio-quality lighting, smooth gradients, subtle shapes.
+- Suitable for a social media advertisement banner.
+`;
+
+
+    // ------------------------------------
+    // 🤖 CLOUDFLARE WORKERS AI (Flux)
+    // ------------------------------------
+
+    const result = await env.AI.run(
+      "@cf/black-forest-labs/flux-1-schnell",
+      {
+        prompt: prompt,
+        steps: 6
+      }
+    );
+
+
+    // ------------------------------------
+    // 🖼️ IMAGE (base64 PNG)
+    // ------------------------------------
+
+    const base64Image =
+      result?.image ||
+      null;
+
+
+    if (!base64Image) {
+
+      throw new Error(
+        "AI background image नहीं मिली।"
+      );
+
+    }
+
+
+    // ------------------------------------
+    // RESPONSE
+    // ------------------------------------
+
+    return Response.json(
+      {
+        success: true,
+        image: `data:image/png;base64,${base64Image}`
+      },
+      {
+        status: 200,
+        headers: corsHeaders
+      }
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Background generation error:",
+      error
+    );
+
+
+    return Response.json(
+      {
+        success: false,
+        error:
+          error?.message ||
+          String(error) ||
+          "Background generation failed."
+      },
+      {
+        status: 500,
+        headers: corsHeaders
+      }
+    );
+
+  }
+
+}
+
+// ========================================
 // 📢 AI ADVERTISEMENT TEXT GENERATION
 // ========================================
 
@@ -308,111 +446,4 @@ It must NOT be copied into the final advertisement.
 
 Example of the required style:
 
-🔥 Stylish Men's T-Shirt 🔥
-
-👕 Modern Printed Design
-✨ Trendy & Comfortable
-🎨 Stylish Color Options
-💯 Perfect for Casual Wear
-
-🛍️ Shop Now!
-
-Return ONLY the advertisement.
-Do not explain anything.
-`;
-
-    // ------------------------------------
-    // 🤖 CLOUDFLARE WORKERS AI
-    // ------------------------------------
-
-    const result = await env.AI.run(
-      "@cf/zai-org/glm-4.7-flash",
-      {
-        prompt: prompt,
-        max_tokens: 1000,
-        temperature: 0.8
-      }
-    );
-
-
-    // ------------------------------------
-    // 📝 AI RESPONSE
-    // ------------------------------------
-
-    const advertisement =
-      result?.response ||
-      result?.result ||
-      result?.text ||
-      "";
-
-
-    if (!advertisement) {
-
-      throw new Error(
-        "AI advertisement response नहीं मिला।"
-      );
-
-    }
-
-
-    // ------------------------------------
-    // RESPONSE
-    // ------------------------------------
-
-    return Response.json(
-      {
-        success: true,
-        ad: advertisement
-      },
-      {
-        status: 200,
-        headers: corsHeaders
-      }
-    );
-
-
-  } catch (error) {
-
-    console.error(
-      "Advertisement generation error:",
-      error
-    );
-
-
-    return Response.json(
-      {
-        success: false,
-        error:
-          error?.message ||
-          String(error) ||
-          "Advertisement generation failed."
-      },
-      {
-        status: 500,
-        headers: corsHeaders
-      }
-    );
-
-  }
-
-}
-    // ------------------------------------
-    // 🌐 WEBSITE FILES
-    // ------------------------------------
-
-    if (env.ASSETS) {
-
-      return env.ASSETS.fetch(request);
-
-    }
-
-
-    return new Response(
-      "AdMakerAI Worker is running.",
-      {
-        status: 200
-      }
-    );
-
-  }
-};
+🔥 Stylish Men's T
