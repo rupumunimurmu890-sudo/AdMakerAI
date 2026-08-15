@@ -835,26 +835,26 @@ ctx.fillText(
   >
 
   <a
-    href="${affiliateLink}"
-    target="_blank"
-    rel="noopener noreferrer"
-    style="
-      display:block;
-      width:100%;
-      box-sizing:border-box;
-      margin-top:10px;
-      padding:14px;
-      background:#16a34a;
-      color:white;
-      text-align:center;
-      text-decoration:none;
-      border-radius:10px;
-      font-weight:bold;
-      cursor:pointer;
-    "
-  >
-    🛒 Order Now
-  </a>
+  href="${affiliateLink}"
+  target="_blank"
+  rel="noopener noreferrer"
+  style="
+    display:block;
+    width:100%;
+    box-sizing:border-box;
+    margin-top:10px;
+    padding:14px;
+    background:#16a34a;
+    color:white;
+    text-align:center;
+    text-decoration:none;
+    border-radius:10px;
+    font-weight:bold;
+    cursor:pointer;
+  "
+>
+  🛒 Order Now
+</a>
 
   <button
     type="button"
