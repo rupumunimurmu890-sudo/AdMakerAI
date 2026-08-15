@@ -478,23 +478,29 @@ Do not explain anything.
 
 
     // ------------------------------------
-    // 📝 AI RESPONSE
-    // ------------------------------------
+// 📝 AI RESPONSE
+// ------------------------------------
 
-    const advertisement =
-      result?.response ||
-      result?.result ||
-      result?.text ||
-      "";
+const advertisement =
+  result?.response ||
+  result?.result ||
+  result?.text ||
+  result?.choices?.[0]?.message?.content ||
+  result?.choices?.[0]?.text ||
+  "";
 
+if (!advertisement) {
 
-    if (!advertisement) {
+  console.log(
+    "FULL AI RESPONSE:",
+    JSON.stringify(result)
+  );
 
-      throw new Error(
-        "AI advertisement response नहीं मिला।"
-      );
+  throw new Error(
+    "AI advertisement response नहीं मिला।"
+  );
 
-    }
+}
 
 
     // ------------------------------------
