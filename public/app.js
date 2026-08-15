@@ -234,7 +234,7 @@ async function createAdImage() {
   const adStyle =
     document.getElementById("adStyle")?.value || "";
     const affiliateLink =
-    document.getElementById("affiliateLink")?.value.trim() || "";
+  document.getElementById("productLink")?.value.trim() || "";
 
   // ========================================
 // 🌍 MULTI-LANGUAGE TEXT
