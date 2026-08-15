@@ -1,4 +1,3 @@
-
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -446,4 +445,116 @@ It must NOT be copied into the final advertisement.
 
 Example of the required style:
 
-🔥 Stylish Men's T
+🔥 Stylish Men's T-Shirt 🔥
+
+👕 Modern Printed Design
+✨ Trendy & Comfortable
+🎨 Stylish Color Options
+💯 Perfect for Casual Wear
+
+🛍️ Shop Now!
+
+Return ONLY the advertisement.
+Do not explain anything.
+`;
+
+    // ------------------------------------
+    // 🤖 CLOUDFLARE WORKERS AI
+    // ------------------------------------
+
+    const result = await env.AI.run(
+      "@cf/zai-org/glm-4.7-flash",
+      {
+        messages: [
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        max_tokens: 1000,
+        temperature: 0.8
+      }
+    );
+
+
+    // ------------------------------------
+    // 📝 AI RESPONSE
+    // ------------------------------------
+
+    const advertisement =
+      result?.response ||
+      result?.result ||
+      result?.text ||
+      "";
+
+
+    if (!advertisement) {
+
+      throw new Error(
+        "AI advertisement response नहीं मिला।"
+      );
+
+    }
+
+
+    // ------------------------------------
+    // RESPONSE
+    // ------------------------------------
+
+    return Response.json(
+      {
+        success: true,
+        ad: advertisement
+      },
+      {
+        status: 200,
+        headers: corsHeaders
+      }
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Advertisement generation error:",
+      error
+    );
+
+
+    return Response.json(
+      {
+        success: false,
+        error:
+          error?.message ||
+          String(error) ||
+          "Advertisement generation failed."
+      },
+      {
+        status: 500,
+        headers: corsHeaders
+      }
+    );
+
+  }
+
+}
+    // ------------------------------------
+    // 🌐 WEBSITE FILES
+    // ------------------------------------
+
+    if (env.ASSETS) {
+
+      return env.ASSETS.fetch(request);
+
+    }
+
+
+    return new Response(
+      "AdMakerAI Worker is running.",
+      {
+        status: 200
+      }
+    );
+
+  }
+};
