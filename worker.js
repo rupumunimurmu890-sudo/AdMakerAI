@@ -491,13 +491,16 @@ const advertisement =
 
 if (!advertisement) {
 
-  console.log(
-    "FULL AI RESPONSE:",
-    JSON.stringify(result)
-  );
-
-  throw new Error(
-    "AI advertisement response नहीं मिला।"
+  return Response.json(
+    {
+      success: false,
+      error: "AI response मिला लेकिन advertisement text नहीं मिला।",
+      debug: result
+    },
+    {
+      status: 500,
+      headers: corsHeaders
+    }
   );
 
 }
