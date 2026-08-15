@@ -271,12 +271,19 @@ if (
     const prompt = `
 You are a professional advertising copywriter.
 
-Create an attractive and persuasive advertisement
-for the following product.
+Create a NEW, attractive and persuasive advertisement
+based on the product information provided below.
+
+IMPORTANT:
+- Do NOT copy the product description word-for-word.
+- Do NOT return the product description as the advertisement.
+- Rewrite and transform the information into a short, engaging sales advertisement.
+- Extract the important features and benefits from the description.
+- Never invent specifications, discounts, offers, guarantees or features that are not provided.
+- The advertisement should sound natural and ready to publish.
 
 IMPORTANT LANGUAGE RULE:
 Write the COMPLETE advertisement in the selected language.
-Do not translate only some parts.
 Do not mix languages unless the selected language is Hinglish.
 
 Selected language:
@@ -294,15 +301,17 @@ ${adStyle || "Professional and attractive"}
 Create a ready-to-use advertisement suitable for
 WhatsApp, Facebook, Instagram and other social media.
 
-Include:
-- Attractive headline
-- Main product benefits
+Use this structure when appropriate:
+- Catchy headline
+- 2–4 short product benefits/features
 - Short persuasive description
-- Call to action
+- Price, if provided
+- Clear call to action
 
-Keep it clear, natural and engaging.
+Keep the advertisement concise, attractive and easy to read.
 
 Do not explain what you are doing.
+Do not repeat the input description word-for-word.
 Return ONLY the final advertisement text.
 `;
 
