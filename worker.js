@@ -238,7 +238,8 @@ if (
     const {
       productName,
       productDescription,
-      adStyle
+      adStyle,
+      adTemplate
     } = body;
 
 
@@ -274,7 +275,7 @@ product named "${productName}".
 ${productDescription ? "Product details: " + productDescription + "." : ""}
 
 Style:
-${adStyle || "modern, clean, professional, vibrant commercial"}
+${adStyle || "modern, clean, professional, vibrant commercial"}${adTemplate && adTemplate !== "none" ? ", themed for " + adTemplate : ""}
 
 IMPORTANT:
 - Do NOT include any product, object, person or logo in the image.
@@ -376,6 +377,7 @@ if (
       productName,
       productDescription,
       adStyle,
+      adTemplate,
       language
     } = body;
 
@@ -429,6 +431,11 @@ ${productDescription}
 ADVERTISEMENT STYLE:
 ${adStyle || "Professional and attractive"}
 
+${
+  adTemplate && adTemplate !== "none"
+    ? "OCCASION / THEME:\n" + adTemplate + "\nIncorporate this occasion naturally (urgency, festive tone, etc.) without inventing specific discount percentages unless a price is given.\n"
+    : ""
+}
 LANGUAGE:
 ${language || "English"}
 
@@ -454,8 +461,16 @@ Example of the required style:
 
 🛍️ Shop Now!
 
-Return ONLY the advertisement.
-Do not explain anything.
+TASK:
+Generate exactly 3 DIFFERENT variations of this advertisement.
+Each variation must have a different headline, angle or tone,
+but must still follow all the rules above.
+
+Separate each variation with this exact line, alone, on its own line:
+===VARIATION===
+
+Return ONLY the 3 advertisements separated by ===VARIATION===.
+Do not number them. Do not add any extra text before, between or after them.
 `;
 
     // ------------------------------------
@@ -471,7 +486,7 @@ Do not explain anything.
             content: prompt
           }
         ],
-        max_completion_tokens: 2000,
+        max_completion_tokens: 3000,
         temperature: 0.8
       }
     );
@@ -510,10 +525,18 @@ if (!advertisement) {
     // RESPONSE
     // ------------------------------------
 
+    // 🆕 3 variations ko ===VARIATION=== se split karo
+    const ads =
+      advertisement
+        .split("===VARIATION===")
+        .map(function (part) { return part.trim(); })
+        .filter(function (part) { return part.length > 0; });
+
     return Response.json(
       {
         success: true,
-        ad: advertisement
+        ads: ads.length > 0 ? ads : [advertisement],
+        ad: ads[0] || advertisement
       },
       {
         status: 200,
