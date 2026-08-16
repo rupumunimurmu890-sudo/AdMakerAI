@@ -227,6 +227,8 @@ async function createAdImage() {
 
   const productDescription =
   document.getElementById("details")?.value.trim() || "";
+  const affiliateLink =
+  document.getElementById("productLink")?.value.trim() || "";
 
   const price =
     document.getElementById("price")?.value.trim() || "";
@@ -1410,6 +1412,78 @@ displayLines.forEach(
 
   videoElement.src =
     videoUrl;
+  // ------------------------------------
+// 🛒 AFFILIATE BUY NOW BUTTON
+// ------------------------------------
+
+if (affiliateLink) {
+
+  const buyButton =
+    document.createElement("a");
+
+  buyButton.href =
+    affiliateLink;
+
+  buyButton.target =
+    "_blank";
+
+  buyButton.rel =
+    "noopener noreferrer";
+
+  buyButton.textContent =
+    "🛒 Buy Now";
+
+  buyButton.style.display =
+    "block";
+
+  buyButton.style.width =
+    "100%";
+
+  buyButton.style.boxSizing =
+    "border-box";
+
+  buyButton.style.marginTop =
+    "10px";
+
+  buyButton.style.padding =
+    "14px";
+
+  buyButton.style.background =
+    "#16a34a";
+
+  buyButton.style.color =
+    "#ffffff";
+
+  buyButton.style.textAlign =
+    "center";
+
+  buyButton.style.textDecoration =
+    "none";
+
+  buyButton.style.borderRadius =
+    "10px";
+
+  buyButton.style.fontWeight =
+    "bold";
+
+  buyButton.style.cursor =
+    "pointer";
+
+
+  const resultBox =
+    document.getElementById(
+      "result"
+    );
+
+  if (resultBox) {
+
+    resultBox.appendChild(
+      buyButton
+    );
+
+  }
+
+}
 
 
   // ------------------------------------
