@@ -17,6 +17,7 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   form.addEventListener("submit", async function (e) {
+
     e.preventDefault();
 
     const resultBox = document.getElementById("result");
@@ -72,7 +73,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       if (!response.ok) {
         throw new Error(
-          data.error || "Something went wrong"
+          (data.error || "Something went wrong") +
+          (data.debug ? "\n\nDebug: " + JSON.stringify(data.debug) : "")
         );
       }
 
@@ -226,15 +228,15 @@ async function createAdImage() {
 
   const productDescription =
   document.getElementById("details")?.value.trim() || "";
-  
 
   const price =
     document.getElementById("price")?.value.trim() || "";
 
   const adStyle =
     document.getElementById("adStyle")?.value || "";
-    const affiliateLink =
-  document.getElementById("productLink")?.value.trim() || "";
+
+  const productLink =
+    document.getElementById("productLink")?.value.trim() || "";
 
   // ========================================
 // 🌍 MULTI-LANGUAGE TEXT
@@ -818,75 +820,142 @@ ctx.fillText(
       "20px";
 
 
+    // 🆕 Clickable image + Buy Now + Copy Link (agar productLink diya ho)
+    const imageLinkOpen =
+      productLink
+        ? `<a href="${productLink}" target="_blank" rel="noopener">`
+        : "";
+
+    const imageLinkClose =
+      productLink
+        ? `</a>`
+        : "";
+
+    const buyNowButtonHtml =
+      productLink
+        ? `
+      <a
+        href="${productLink}"
+        target="_blank"
+        rel="noopener"
+        style="display:block; text-decoration:none;"
+      >
+        <button
+          type="button"
+          style="
+            width:100%;
+            margin-top:10px;
+            padding:14px;
+            border:0;
+            border-radius:10px;
+            cursor:pointer;
+            background:linear-gradient(90deg, #00a86b, #16c784);
+            color:#fff;
+            font-weight:bold;
+          "
+        >
+          🛒 Buy Now
+        </button>
+      </a>
+      `
+        : "";
+
+    const copyLinkButtonHtml =
+      productLink
+        ? `
+      <button
+        type="button"
+        id="copyAffiliateLinkImg"
+        style="
+          width:100%;
+          margin-top:10px;
+          padding:14px;
+          border:0;
+          border-radius:10px;
+          cursor:pointer;
+        "
+      >
+        🔗 Copy Affiliate Link
+      </button>
+      `
+        : "";
+
     container.innerHTML = `
-  <h2>${adTitle}</h2>
+      <h2>${adTitle}</h2>
 
-  <a
-  href="${affiliateLink}"
-  target="_blank"
-  rel="noopener noreferrer"
-  style="
-    display:block;
-    text-decoration:none;
-  "
->
-  <img
-    id="generatedAdImage"
-    src="${imageUrl}"
-    alt="Generated Advertisement"
-    style="
-      width:100%;
-      max-width:500px;
-      border-radius:15px;
-      display:block;
-      margin:15px auto;
-      cursor:pointer;
-    "
-  >
-</a>
+      ${imageLinkOpen}<img
+        id="generatedAdImage"
+        src="${imageUrl}"
+        alt="Generated Advertisement"
+        style="
+          width:100%;
+          max-width:500px;
+          border-radius:15px;
+          display:block;
+          margin:15px auto;
+          cursor:${productLink ? "pointer" : "default"};
+        "
+      >${imageLinkClose}
 
-  <a
-  href="${affiliateLink}"
-  target="_blank"
-  rel="noopener noreferrer"
-  style="
-    display:block;
-    width:100%;
-    box-sizing:border-box;
-    margin-top:10px;
-    padding:14px;
-    background:#16a34a;
-    color:white;
-    text-align:center;
-    text-decoration:none;
-    border-radius:10px;
-    font-weight:bold;
-    cursor:pointer;
-  "
->
-  🛒 Order Now
-</a>
+      <button
+        type="button"
+        id="downloadAdImage"
+        style="
+          width:100%;
+          margin-top:10px;
+          padding:14px;
+          border:0;
+          border-radius:10px;
+          cursor:pointer;
+        "
+      >
+        📥 Download Advertisement
+      </button>
 
-  <button
-    type="button"
-    id="downloadAdImage"
-    style="
-      width:100%;
-      margin-top:10px;
-      padding:14px;
-      border:0;
-      border-radius:10px;
-      cursor:pointer;
-    "
-  >
-    📥 Download Advertisement
-  </button>
-`;
+      ${buyNowButtonHtml}
+      ${copyLinkButtonHtml}
+    `;
 
 
     resultBox.appendChild(
       container
     );
+
+
+    // ------------------------------------
+    // 🆕 Copy Affiliate Link Button
+    // ------------------------------------
+
+    const copyLinkButton =
+      document.getElementById(
+        "copyAffiliateLinkImg"
+      );
+
+    if (copyLinkButton) {
+
+      copyLinkButton.addEventListener(
+        "click",
+        async function () {
+
+          try {
+
+            await navigator.clipboard.writeText(
+              productLink
+            );
+
+            alert(
+              "✅ Affiliate link copied!"
+            );
+
+          } catch (copyError) {
+
+            alert(
+              "❌ Link copy नहीं हो पाया।"
+            );
+          }
+        }
+      );
+    }
 
 
     // ------------------------------------
@@ -979,6 +1048,9 @@ async function createAdVideo() {
 
   const language =
     document.getElementById("language")?.value || "";
+
+  const productLink =
+    document.getElementById("productLink")?.value.trim() || "";
 
   const scriptElement =
     document.getElementById("script");
@@ -1083,473 +1155,263 @@ async function createAdVideo() {
       });
 
 
-    // ========================================
-// 🎬 FREE BROWSER VIDEO GENERATOR
-// ========================================
+    // ------------------------------------
+    // Video API Request
+    // ------------------------------------
 
-const videoCanvas = document.createElement("canvas");
+    const response =
+      await fetch(
+        "/api/generate-video",
+        {
+          method: "POST",
 
-videoCanvas.width = 1080;
-videoCanvas.height = 1080;
+          headers: {
+            "Content-Type": "application/json"
+          },
 
-const videoCtx = videoCanvas.getContext("2d");
+          body: JSON.stringify({
+            productName,
+            productDescription,
+            language,
+            script,
+            image: imageData
+          })
+        }
+      );
 
-const productImg = new Image();
 
-productImg.onload = async function () {
+    // ------------------------------------
+    // Response पढ़ना
+    // ------------------------------------
 
-  const stream =
-    videoCanvas.captureStream(30);
+    const responseText =
+      await response.text();
 
-  const chunks = [];
+    let data;
 
-  const recorder =
-    new MediaRecorder(
-      stream,
-      {
-        mimeType: "video/webm;codecs=vp9"
-      }
-    );
+    try {
 
-  recorder.ondataavailable = function (event) {
+      data =
+        JSON.parse(responseText);
 
-    if (event.data.size > 0) {
-      chunks.push(event.data);
+    } catch (jsonError) {
+
+      throw new Error(
+        "Video server ने valid JSON response नहीं दिया।"
+      );
     }
 
-  };
 
-  const recordingFinished =
-    new Promise((resolve) => {
+    if (
+      !response.ok ||
+      !data.success
+    ) {
 
-      recorder.onstop = function () {
-
-        const blob =
-          new Blob(
-            chunks,
-            {
-              type: "video/webm"
-            }
-          );
-
-        resolve(
-          URL.createObjectURL(blob)
-        );
-
-      };
-
-    });
-
-
-  recorder.start();
-
-  // ------------------------------------
-  // 🎥 6 SECOND ANIMATION
-  // ------------------------------------
-
-  const duration = 6000;
-
-  const startTime =
-    performance.now();
-
-
-  function animate(currentTime) {
-
-    const elapsed =
-      currentTime - startTime;
-
-    const progress =
-      Math.min(
-        elapsed / duration,
-        1
+      throw new Error(
+        data.error ||
+        "Video generation failed."
       );
-
-
-    // Smooth zoom
-    const scale =
-      1 + (progress * 0.12);
-
-
-    // Background
-    videoCtx.fillStyle = "#ffffff";
-
-    videoCtx.fillRect(
-      0,
-      0,
-      1080,
-      1080
-    );
-
-
-    // ------------------------------------
-    // PRODUCT IMAGE
-    // ------------------------------------
-
-    const imageWidth =
-      760 * scale;
-
-    const imageHeight =
-      760 * scale;
-
-
-    const imageX =
-      (1080 - imageWidth) / 2;
-
-    const imageY =
-      110 -
-      (imageHeight - 760) / 2;
-
-
-    videoCtx.drawImage(
-      productImg,
-      imageX,
-      imageY,
-      imageWidth,
-      imageHeight
-    );
-
-
-    // ------------------------------------
-    // PRODUCT NAME
-    // ------------------------------------
-
-    videoCtx.fillStyle =
-      "#111111";
-
-    // ------------------------------------
-// 📝 PRODUCT NAME - AUTO WRAP
-// ------------------------------------
-
-videoCtx.fillStyle =
-  "#111111";
-
-videoCtx.font =
-  "bold 42px Arial";
-
-videoCtx.textAlign =
-  "center";
-
-const maxTextWidth = 900;
-
-const words =
-  productName.split(" ");
-
-const lines = [];
-
-let currentLine = "";
-
-for (const word of words) {
-
-  const testLine =
-    currentLine
-      ? currentLine + " " + word
-      : word;
-
-  const width =
-    videoCtx.measureText(
-      testLine
-    ).width;
-
-  if (
-    width > maxTextWidth &&
-    currentLine
-  ) {
-
-    lines.push(
-      currentLine
-    );
-
-    currentLine =
-      word;
-
-  } else {
-
-    currentLine =
-      testLine;
-
-  }
-
-}
-
-if (currentLine) {
-
-  lines.push(
-    currentLine
-  );
-
-}
-
-
-// Maximum 3 lines
-const displayLines =
-  lines.slice(0, 3);
-
-
-// Draw lines
-const lineHeight = 50;
-
-const startY =
-  910 -
-  ((displayLines.length - 1) *
-    lineHeight) / 2;
-
-
-displayLines.forEach(
-  (line, index) => {
-
-    videoCtx.fillText(
-      line,
-      540,
-      startY +
-        (index * lineHeight)
-    );
-
-  }
-);
-
-
-    // ------------------------------------
-    // ADMAKERAI BRAND
-    // ------------------------------------
-
-    videoCtx.font =
-      "bold 30px Arial";
-
-    videoCtx.fillText(
-      "🎬 AdMakerAI",
-      540,
-      985
-    );
-
-
-    if (elapsed < duration) {
-
-      requestAnimationFrame(
-        animate
-      );
-
-    } else {
-
-      recorder.stop();
-
     }
 
-  }
+
+    const videoUrl =
+      data.video ||
+      data.result?.video;
 
 
-  requestAnimationFrame(
-    animate
-  );
+    if (!videoUrl) {
 
-
-  // ------------------------------------
-  // VIDEO URL
-  // ------------------------------------
-
-  const videoUrl =
-    await recordingFinished;
-
-
-  // ------------------------------------
-  // VIDEO ELEMENT
-  // ------------------------------------
-
-  let videoElement =
-    document.getElementById(
-      "generatedVideo"
-    );
-
-
-  if (!videoElement) {
-
-    videoElement =
-      document.createElement(
-        "video"
+      throw new Error(
+        "AI ने video URL नहीं दिया।"
       );
+    }
 
-    videoElement.id =
-      "generatedVideo";
 
-    videoElement.controls =
-      true;
+    // ------------------------------------
+    // Result
+    // ------------------------------------
 
-    videoElement.autoplay =
-      false;
+    const resultBox =
+      document.getElementById("result");
 
-    videoElement.playsInline =
-      true;
+    if (!resultBox) {
 
-    videoElement.style.width =
-      "100%";
+      throw new Error(
+        "Result box नहीं मिला।"
+      );
+    }
 
-    videoElement.style.maxWidth =
-      "600px";
-
-    videoElement.style.margin =
-      "15px auto";
-
-    videoElement.style.display =
+    resultBox.style.display =
       "block";
 
 
-    const resultBox =
+    const oldVideoContainer =
       document.getElementById(
-        "result"
+        "aiVideoContainer"
       );
 
-    if (resultBox) {
-
-      resultBox.appendChild(
-        videoElement
-      );
-
+    if (oldVideoContainer) {
+      oldVideoContainer.remove();
     }
 
-  }
+
+    const videoContainer =
+      document.createElement("div");
+
+    videoContainer.id =
+      "aiVideoContainer";
+
+    videoContainer.style.marginTop =
+      "20px";
 
 
-  videoElement.src =
-    videoUrl;
-  // ------------------------------------
-// 🛒 AFFILIATE BUY NOW BUTTON
-// ------------------------------------
+    // 🆕 Buy Now + Copy Link (agar productLink diya ho)
+    const videoBuyNowHtml =
+      productLink
+        ? `
+      <a
+        href="${productLink}"
+        target="_blank"
+        rel="noopener"
+        style="display:block; text-decoration:none;"
+      >
+        <button
+          type="button"
+          style="
+            width:100%;
+            margin-top:10px;
+            padding:14px;
+            border:0;
+            border-radius:10px;
+            cursor:pointer;
+            background:linear-gradient(90deg, #00a86b, #16c784);
+            color:#fff;
+            font-weight:bold;
+          "
+        >
+          🛒 Buy Now
+        </button>
+      </a>
+      `
+        : "";
 
-if (affiliateLink) {
+    const videoCopyLinkHtml =
+      productLink
+        ? `
+      <button
+        type="button"
+        id="copyAffiliateLinkVideo"
+        style="
+          width:100%;
+          margin-top:10px;
+          padding:14px;
+          border:0;
+          border-radius:10px;
+          cursor:pointer;
+        "
+      >
+        🔗 Copy Affiliate Link
+      </button>
+      `
+        : "";
 
-  const buyButton =
-    document.createElement("a");
+    videoContainer.innerHTML = `
+      <h2>🎬 AI Advertisement Video</h2>
 
-  buyButton.href =
-    affiliateLink;
+      <video
+        id="aiAdVideo"
+        controls
+        playsinline
+        style="
+          width:100%;
+          max-width:400px;
+          border-radius:15px;
+          display:block;
+          margin:15px auto;
+        "
+      >
+        <source
+          src="${videoUrl}"
+          type="video/mp4"
+        >
+        आपका browser video support नहीं करता।
+      </video>
 
-  buyButton.target =
-    "_blank";
+      <a
+        href="${videoUrl}"
+        target="_blank"
+        rel="noopener"
+        download="AdMakerAI-Advertisement.mp4"
+        style="
+          display:block;
+          text-align:center;
+          text-decoration:none;
+        "
+      >
+        <button
+          type="button"
+          style="
+            width:100%;
+            margin-top:10px;
+            padding:14px;
+            border:0;
+            border-radius:10px;
+            cursor:pointer;
+          "
+        >
+          📥 Download Advertisement Video
+        </button>
+      </a>
 
-  buyButton.rel =
-    "noopener noreferrer";
+      ${videoBuyNowHtml}
+      ${videoCopyLinkHtml}
+    `;
 
-  buyButton.textContent =
-    "🛒 Buy Now";
-
-  buyButton.style.display =
-    "block";
-
-  buyButton.style.width =
-    "100%";
-
-  buyButton.style.boxSizing =
-    "border-box";
-
-  buyButton.style.marginTop =
-    "10px";
-
-  buyButton.style.padding =
-    "14px";
-
-  buyButton.style.background =
-    "#16a34a";
-
-  buyButton.style.color =
-    "#ffffff";
-
-  buyButton.style.textAlign =
-    "center";
-
-  buyButton.style.textDecoration =
-    "none";
-
-  buyButton.style.borderRadius =
-    "10px";
-
-  buyButton.style.fontWeight =
-    "bold";
-
-  buyButton.style.cursor =
-    "pointer";
-
-
-  const resultBox =
-    document.getElementById(
-      "result"
-    );
-
-  if (resultBox) {
 
     resultBox.appendChild(
-      buyButton
+      videoContainer
     );
 
-  }
 
-}
+    // ------------------------------------
+    // 🆕 Copy Affiliate Link Button
+    // ------------------------------------
+
+    const copyLinkButtonVideo =
+      document.getElementById(
+        "copyAffiliateLinkVideo"
+      );
+
+    if (copyLinkButtonVideo) {
+
+      copyLinkButtonVideo.addEventListener(
+        "click",
+        async function () {
+
+          try {
+
+            await navigator.clipboard.writeText(
+              productLink
+            );
+
+            alert(
+              "✅ Affiliate link copied!"
+            );
+
+          } catch (copyError) {
+
+            alert(
+              "❌ Link copy नहीं हो पाया।"
+            );
+          }
+        }
+      );
+    }
 
 
-  // ------------------------------------
-  // DOWNLOAD BUTTON
-  // ------------------------------------
-
-  const downloadLink =
-    document.createElement(
-      "a"
+    alert(
+      "✅ AI Advertisement Video तैयार है!"
     );
-
-  downloadLink.href =
-    videoUrl;
-
-  downloadLink.download =
-    "AdMakerAI-Advertisement.webm";
-
-  downloadLink.textContent =
-    "📥 Download Advertisement Video";
-
-
-  downloadLink.style.display =
-    "block";
-
-  downloadLink.style.textAlign =
-    "center";
-
-  downloadLink.style.margin =
-    "15px 0";
-
-  downloadLink.style.padding =
-    "14px";
-
-  downloadLink.style.borderRadius =
-    "10px";
-
-  downloadLink.style.textDecoration =
-    "none";
-
-  downloadLink.style.background =
-    "#6a00ff";
-
-  downloadLink.style.color =
-    "#ffffff";
-
-
-  const resultBox =
-    document.getElementById(
-      "result"
-    );
-
-  if (resultBox) {
-
-    resultBox.appendChild(
-      downloadLink
-    );
-
-  }
-
-};
-
-
-// ------------------------------------
-// LOAD PRODUCT IMAGE
-// ------------------------------------
-
-productImg.src =
-  imageData
 
 
   } catch (error) {
