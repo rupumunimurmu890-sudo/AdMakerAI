@@ -33,6 +33,23 @@
     <h1>🎬 AdMakerAI</h1>
     <p class="subtitle">AI Advertisement Maker</p>
 
+    <div class="topBar">
+      <button type="button" id="themeToggle" onclick="toggleTheme()">
+        🌙 Dark Mode
+      </button>
+      <button type="button" onclick="toggleHistoryPanel()">
+        📜 History
+      </button>
+    </div>
+
+    <div id="historyPanel">
+      <h2 style="margin-bottom:10px;">📜 Saved Advertisements</h2>
+      <div id="historyList"></div>
+      <button type="button" onclick="clearHistory()" style="background:#a52a4a; margin-top:15px;">
+        🗑️ Clear History
+      </button>
+    </div>
+
     <form id="adForm">
 
       <label>📷 Product Image</label>
@@ -86,7 +103,20 @@
         <option value="Luxury and premium">Luxury / Premium</option>
         <option value="Minimal and clean">Minimal</option>
         <option value="Bold and energetic">Bold &amp; Energetic</option>
-        <option value="Festive sale/discount focused">Festive / Sale</option>
+      </select>
+
+      <label>🎉 Occasion / Template</label>
+
+      <select id="adTemplate">
+        <option value="none">None</option>
+        <option value="Diwali sale">🪔 Diwali Sale</option>
+        <option value="Flash sale with urgency and limited time">⚡ Flash Sale</option>
+        <option value="New product launch">🚀 New Launch</option>
+        <option value="Republic Day patriotic sale">🇮🇳 Republic Day Sale</option>
+        <option value="Wedding season special">💍 Wedding Special</option>
+        <option value="Summer season offer">☀️ Summer Sale</option>
+        <option value="Eid special offer">🌙 Eid Special</option>
+        <option value="Year end clearance sale">🎊 Year End Sale</option>
       </select>
 
       <label>🎯 Advertisement Language</label>
@@ -142,6 +172,7 @@
 
     <div id="result" class="result">
       <h2>🎬 Advertisement Script</h2>
+      <div id="adVariations"></div>
       <div id="script" class="script"></div>
 
       <button type="button" onclick="copyAdvertisement()">
@@ -157,6 +188,14 @@
       </button>
 
       <div id="shareButtons">
+
+        <button type="button" onclick="buyNow()">
+          🛒 Buy Now
+        </button>
+
+        <button type="button" onclick="copyAffiliateLink()">
+          🔗 Copy Affiliate Link
+        </button>
 
         <button type="button" onclick="shareWhatsApp()">
           🟢 Share on WhatsApp
@@ -204,6 +243,46 @@ imageInput.addEventListener("change", function () {
 
 
 // ========================================
+// 🆕 AFFILIATE LINK HELPERS
+// ========================================
+
+function copyAffiliateLink() {
+
+  const link =
+    document.getElementById("productLink")?.value.trim() || "";
+
+  if (!link) {
+    alert("पहले Affiliate / Product Link डालें।");
+    return;
+  }
+
+  navigator.clipboard.writeText(link).then(function () {
+
+    alert("✅ Affiliate link copied!");
+
+  }).catch(function () {
+
+    alert("❌ Link copy नहीं हो पाया।");
+
+  });
+}
+
+
+function buyNow() {
+
+  const link =
+    document.getElementById("productLink")?.value.trim() || "";
+
+  if (!link) {
+    alert("पहले Affiliate / Product Link डालें।");
+    return;
+  }
+
+  window.open(link, "_blank");
+}
+
+
+// ========================================
 // 📤 SHARE ADVERTISEMENT (image + text)
 // Uses whichever advertisement image app.js
 // most recently generated (#generatedAdImage).
@@ -215,9 +294,19 @@ async function shareAdvertisement() {
 
   const scriptElement = document.getElementById("script");
 
-  const text = scriptElement
+  let text = scriptElement
     ? scriptElement.textContent.trim()
     : "AdMakerAI Advertisement";
+
+  // 🆕 Affiliate link ko share text ke sath jodo
+  // (image/video ke andar clickable link embed nahi ho sakta,
+  // isliye link text ke sath jaana zaroori hai)
+  const productLink =
+    document.getElementById("productLink")?.value.trim() || "";
+
+  if (productLink) {
+    text += "\n\n🛒 Buy Now: " + productLink;
+  }
 
   const imgElement = document.getElementById("generatedAdImage");
 
@@ -305,7 +394,7 @@ function shareInstagram() {
 
 </script>
 
-<script src="app.js?v=3"></script>
+<script src="app.js?v=4"></script>
 
 </body>
 </html>
