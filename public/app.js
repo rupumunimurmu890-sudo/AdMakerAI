@@ -16,12 +16,16 @@ document.addEventListener("DOMContentLoaded", function () {
     return;
   }
 
+  const generateButton =
+    form.querySelector('button[type="submit"]');
+
   form.addEventListener("submit", async function (e) {
 
     e.preventDefault();
 
     const resultBox = document.getElementById("result");
     const resultText = document.getElementById("script");
+    const variationsBox = document.getElementById("adVariations");
 
     const productName =
       document.getElementById("productName")?.value.trim() || "";
@@ -29,11 +33,20 @@ document.addEventListener("DOMContentLoaded", function () {
     const productDescription =
   document.getElementById("details")?.value.trim() || "";
 
+    const price =
+      document.getElementById("price")?.value.trim() || "";
+
     const adStyle =
       document.getElementById("adStyle")?.value || "";
 
+    const adTemplate =
+      document.getElementById("adTemplate")?.value || "";
+
     const language =
       document.getElementById("language")?.value || "";
+
+    const productLink =
+      document.getElementById("productLink")?.value.trim() || "";
 
     if (!productName || !productDescription) {
       alert("Please enter product name and product description.");
@@ -44,10 +57,19 @@ document.addEventListener("DOMContentLoaded", function () {
       resultBox.style.display = "block";
     }
 
-    if (resultText) {
-      resultText.textContent =
-        "⏳ AI advertisement बना रहा है...";
+    if (variationsBox) {
+      variationsBox.innerHTML = "";
     }
+
+    if (resultText) {
+      resultText.textContent = "";
+    }
+
+    // 🆕 Loading spinner
+    setButtonLoading(
+      generateButton,
+      "AI advertisement बना रहा है..."
+    );
 
     try {
 
@@ -64,6 +86,7 @@ document.addEventListener("DOMContentLoaded", function () {
             productName,
             productDescription,
             adStyle,
+            adTemplate,
             language
           })
         }
@@ -78,18 +101,27 @@ document.addEventListener("DOMContentLoaded", function () {
         );
       }
 
-      if (resultText) {
-        resultText.textContent =
-          data.ad ||
-          data.result ||
-          data.script ||
-          "Advertisement generate नहीं हुआ।";
-      }
+      const ads =
+        data.ads && data.ads.length > 0
+          ? data.ads
+          : [data.ad || "Advertisement generate नहीं हुआ।"];
 
-      // 🆕 Order button (agar product link diya gaya ho)
-      const productLink =
-        document.getElementById("productLink")?.value.trim() || "";
+      // 🆕 3 variations render karo
+      renderAdVariations(ads);
 
+      // 🆕 History mein save karo
+      saveToHistory({
+        productName,
+        productDescription,
+        price,
+        productLink,
+        adStyle,
+        adTemplate,
+        language,
+        ads
+      });
+
+      // Order button (agar product link diya gaya ho)
       const orderButton =
         document.getElementById("orderButton");
 
@@ -128,11 +160,427 @@ document.addEventListener("DOMContentLoaded", function () {
           "❌ Error: " +
           (error?.message || "AI से connection नहीं हो पाया।");
       }
+
+    } finally {
+
+      restoreButton(
+        generateButton,
+        "✨ Generate Advertisement"
+      );
     }
 
   });
 
 });
+
+
+// ========================================
+// 🆕 LOADING SPINNER HELPERS
+// ========================================
+
+function setButtonLoading(button, message) {
+
+  if (!button) return;
+
+  button.disabled = true;
+
+  button.dataset.originalHtml = button.innerHTML;
+
+  button.innerHTML =
+    '<span class="spinner"></span> ' + message;
+}
+
+
+function restoreButton(button, fallbackText) {
+
+  if (!button) return;
+
+  button.disabled = false;
+
+  button.innerHTML =
+    button.dataset.originalHtml || fallbackText;
+}
+
+
+// ========================================
+// 🆕 MULTIPLE AD VARIATIONS
+// ========================================
+
+function renderAdVariations(ads) {
+
+  const variationsBox =
+    document.getElementById("adVariations");
+
+  const scriptEl =
+    document.getElementById("script");
+
+  if (!variationsBox) {
+
+    if (scriptEl) {
+      scriptEl.textContent = ads[0] || "";
+    }
+
+    return;
+  }
+
+  if (ads.length <= 1) {
+
+    variationsBox.innerHTML = "";
+
+    if (scriptEl) {
+      scriptEl.textContent = ads[0] || "";
+    }
+
+    return;
+  }
+
+  variationsBox.innerHTML =
+    ads.map(function (adText, index) {
+
+      const safeText =
+        adText
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+
+      return `
+        <div class="ad-variation-card" data-index="${index}">
+          <div class="ad-variation-label">Option ${index + 1}</div>
+          <div class="ad-variation-text">${safeText}</div>
+          <button type="button" class="use-variation-btn" data-index="${index}">
+            ✅ Use This Version
+          </button>
+        </div>
+      `;
+
+    }).join("");
+
+  selectVariation(ads, 0);
+
+  const buttons =
+    variationsBox.querySelectorAll(".use-variation-btn");
+
+  buttons.forEach(function (btn) {
+
+    btn.addEventListener("click", function () {
+
+      const idx =
+        parseInt(this.getAttribute("data-index"), 10);
+
+      selectVariation(ads, idx);
+    });
+  });
+}
+
+
+function selectVariation(ads, index) {
+
+  const scriptEl =
+    document.getElementById("script");
+
+  if (scriptEl) {
+    scriptEl.textContent = ads[index] || "";
+  }
+
+  const cards =
+    document.querySelectorAll(".ad-variation-card");
+
+  cards.forEach(function (card, i) {
+
+    card.classList.toggle(
+      "selected",
+      i === index
+    );
+  });
+}
+
+
+window.renderAdVariations = renderAdVariations;
+window.selectVariation = selectVariation;
+
+
+// ========================================
+// 🆕 HISTORY (localStorage, browser-only)
+// ========================================
+
+const HISTORY_KEY = "admakerai_history";
+const HISTORY_LIMIT = 20;
+
+function saveToHistory(entry) {
+
+  try {
+
+    const existing =
+      JSON.parse(
+        localStorage.getItem(HISTORY_KEY) || "[]"
+      );
+
+    existing.unshift({
+      ...entry,
+      date: new Date().toISOString()
+    });
+
+    const trimmed =
+      existing.slice(0, HISTORY_LIMIT);
+
+    localStorage.setItem(
+      HISTORY_KEY,
+      JSON.stringify(trimmed)
+    );
+
+    renderHistoryPanel();
+
+  } catch (storageError) {
+
+    console.error(
+      "History save error:",
+      storageError
+    );
+  }
+}
+
+
+function getHistory() {
+
+  try {
+
+    return JSON.parse(
+      localStorage.getItem(HISTORY_KEY) || "[]"
+    );
+
+  } catch (storageError) {
+
+    return [];
+  }
+}
+
+
+function renderHistoryPanel() {
+
+  const panel =
+    document.getElementById("historyList");
+
+  if (!panel) return;
+
+  const history = getHistory();
+
+  if (history.length === 0) {
+
+    panel.innerHTML =
+      '<p style="text-align:center; color:#aaa0c5; padding:20px;">कोई saved ad नहीं है।</p>';
+
+    return;
+  }
+
+  panel.innerHTML =
+    history.map(function (item, index) {
+
+      const dateLabel =
+        new Date(item.date).toLocaleString();
+
+      return `
+        <div class="history-item">
+          <div class="history-item-title">${item.productName}</div>
+          <div class="history-item-date">${dateLabel}</div>
+          <div class="history-item-buttons">
+            <button type="button" class="history-load-btn" data-index="${index}">
+              📂 Load
+            </button>
+            <button type="button" class="history-delete-btn" data-index="${index}">
+              🗑️ Delete
+            </button>
+          </div>
+        </div>
+      `;
+
+    }).join("");
+
+  panel.querySelectorAll(".history-load-btn").forEach(function (btn) {
+
+    btn.addEventListener("click", function () {
+
+      const idx =
+        parseInt(this.getAttribute("data-index"), 10);
+
+      loadHistoryItem(idx);
+    });
+  });
+
+  panel.querySelectorAll(".history-delete-btn").forEach(function (btn) {
+
+    btn.addEventListener("click", function () {
+
+      const idx =
+        parseInt(this.getAttribute("data-index"), 10);
+
+      deleteHistoryItem(idx);
+    });
+  });
+}
+
+
+function loadHistoryItem(index) {
+
+  const history = getHistory();
+  const item = history[index];
+
+  if (!item) return;
+
+  const setValue = function (id, value) {
+    const el = document.getElementById(id);
+    if (el) el.value = value || "";
+  };
+
+  setValue("productName", item.productName);
+  setValue("details", item.productDescription);
+  setValue("price", item.price);
+  setValue("productLink", item.productLink);
+  setValue("adStyle", item.adStyle);
+  setValue("adTemplate", item.adTemplate);
+  setValue("language", item.language);
+
+  const resultBox = document.getElementById("result");
+  if (resultBox) resultBox.style.display = "block";
+
+  renderAdVariations(item.ads || []);
+
+  const shareButtons = document.getElementById("shareButtons");
+  if (shareButtons) shareButtons.style.display = "block";
+
+  const orderButton = document.getElementById("orderButton");
+  if (orderButton) {
+    if (item.productLink) {
+      orderButton.style.display = "block";
+      orderButton.onclick = function () {
+        window.open(item.productLink, "_blank");
+      };
+    } else {
+      orderButton.style.display = "none";
+    }
+  }
+
+  toggleHistoryPanel(false);
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+
+function deleteHistoryItem(index) {
+
+  const history = getHistory();
+
+  history.splice(index, 1);
+
+  localStorage.setItem(
+    HISTORY_KEY,
+    JSON.stringify(history)
+  );
+
+  renderHistoryPanel();
+}
+
+
+function clearHistory() {
+
+  if (!confirm("Saare saved ads delete kar dein?")) {
+    return;
+  }
+
+  localStorage.removeItem(HISTORY_KEY);
+
+  renderHistoryPanel();
+}
+
+
+function toggleHistoryPanel(forceState) {
+
+  const panel =
+    document.getElementById("historyPanel");
+
+  if (!panel) return;
+
+  const isOpen =
+    panel.style.display === "block";
+
+  const shouldOpen =
+    typeof forceState === "boolean"
+      ? forceState
+      : !isOpen;
+
+  panel.style.display =
+    shouldOpen ? "block" : "none";
+
+  if (shouldOpen) {
+    renderHistoryPanel();
+  }
+}
+
+
+// ========================================
+// 🌙 THEME TOGGLE (Dark / Light Mode)
+// ========================================
+
+function applyTheme(theme) {
+
+  if (theme === "light") {
+    document.body.classList.add("light-theme");
+  } else {
+    document.body.classList.remove("light-theme");
+  }
+
+  const themeButton =
+    document.getElementById("themeToggle");
+
+  if (themeButton) {
+    themeButton.textContent =
+      theme === "light" ? "☀️ Light Mode" : "🌙 Dark Mode";
+  }
+}
+
+
+function toggleTheme() {
+
+  const isLight =
+    document.body.classList.contains("light-theme");
+
+  const newTheme =
+    isLight ? "dark" : "light";
+
+  applyTheme(newTheme);
+
+  try {
+    localStorage.setItem("admakerai_theme", newTheme);
+  } catch (themeError) {
+    console.error("Theme save error:", themeError);
+  }
+}
+
+
+// Saved theme apply karo page load hote hi
+(function () {
+
+  try {
+
+    const savedTheme =
+      localStorage.getItem("admakerai_theme");
+
+    if (savedTheme) {
+      applyTheme(savedTheme);
+    }
+
+  } catch (themeError) {
+
+    console.error(
+      "Theme load error:",
+      themeError
+    );
+  }
+})();
+
+
+window.toggleHistoryPanel = toggleHistoryPanel;
+window.clearHistory = clearHistory;
+window.toggleTheme = toggleTheme;
 
 
 // ========================================
@@ -234,6 +682,9 @@ async function createAdImage() {
 
   const adStyle =
     document.getElementById("adStyle")?.value || "";
+
+  const adTemplate =
+    document.getElementById("adTemplate")?.value || "";
 
   const productLink =
     document.getElementById("productLink")?.value.trim() || "";
@@ -399,13 +850,10 @@ if (!productName || !productDescription) {
       'button[onclick="createAdImage()"]'
     );
 
-  if (button) {
-
-    button.disabled = true;
-
-    button.textContent =
-      "⏳ AI Advertisement Image बना रहा है...";
-  }
+  setButtonLoading(
+    button,
+    "AI Advertisement Image बना रहा है..."
+  );
 
   try {
 
@@ -508,8 +956,8 @@ if (!productName || !productDescription) {
     try {
 
       if (button) {
-        button.textContent =
-          "⏳ AI Background बना रहा है...";
+        button.innerHTML =
+          '<span class="spinner"></span> AI Background बना रहा है...';
       }
 
       const bgResponse = await fetch(
@@ -522,7 +970,8 @@ if (!productName || !productDescription) {
           body: JSON.stringify({
             productName,
             productDescription,
-            adStyle
+            adStyle,
+            adTemplate
           })
         }
       );
@@ -604,8 +1053,8 @@ if (!productName || !productDescription) {
     }
 
     if (button) {
-      button.textContent =
-        "⏳ Advertisement Image बना रहा है...";
+      button.innerHTML =
+        '<span class="spinner"></span> Advertisement Image बना रहा है...';
     }
 
 
@@ -1015,14 +1464,10 @@ ctx.fillText(
 
   } finally {
 
-    if (button) {
-
-      button.disabled =
-        false;
-
-      button.textContent =
-        "🖼️ Create Advertisement Image";
-    }
+    restoreButton(
+      button,
+      "🖼️ Create Advertisement Image"
+    );
   }
 }
 
@@ -1101,13 +1546,10 @@ async function createAdVideo() {
       'button[onclick="createAdVideo()"]'
     );
 
-  if (button) {
-
-    button.disabled = true;
-
-    button.textContent =
-      "⏳ AI Video बना रहा है...";
-  }
+  setButtonLoading(
+    button,
+    "AI Video बना रहा है..."
+  );
 
 
   try {
@@ -1429,16 +1871,12 @@ async function createAdVideo() {
 
   } finally {
 
-    if (button) {
-
-      button.disabled =
-        false;
-
-      button.textContent =
-        "🎬 Create Advertisement Video";
-    }
+    restoreButton(
+      button,
+      "🎬 Create Advertisement Video"
+    );
   }
 }
 
 window.createAdVideo =
-  createAdVideo;
+  createAdVideo
