@@ -226,8 +226,7 @@ async function createAdImage() {
 
   const productDescription =
   document.getElementById("details")?.value.trim() || "";
-  const affiliateLink =
-  document.getElementById("productLink")?.value.trim() || "";
+  
 
   const price =
     document.getElementById("price")?.value.trim() || "";
