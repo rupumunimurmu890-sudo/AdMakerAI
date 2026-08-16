@@ -1205,17 +1205,96 @@ productImg.onload = async function () {
     videoCtx.fillStyle =
       "#111111";
 
-    videoCtx.font =
-      "bold 55px Arial";
+    // ------------------------------------
+// 📝 PRODUCT NAME - AUTO WRAP
+// ------------------------------------
 
-    videoCtx.textAlign =
-      "center";
+videoCtx.fillStyle =
+  "#111111";
+
+videoCtx.font =
+  "bold 42px Arial";
+
+videoCtx.textAlign =
+  "center";
+
+const maxTextWidth = 900;
+
+const words =
+  productName.split(" ");
+
+const lines = [];
+
+let currentLine = "";
+
+for (const word of words) {
+
+  const testLine =
+    currentLine
+      ? currentLine + " " + word
+      : word;
+
+  const width =
+    videoCtx.measureText(
+      testLine
+    ).width;
+
+  if (
+    width > maxTextWidth &&
+    currentLine
+  ) {
+
+    lines.push(
+      currentLine
+    );
+
+    currentLine =
+      word;
+
+  } else {
+
+    currentLine =
+      testLine;
+
+  }
+
+}
+
+if (currentLine) {
+
+  lines.push(
+    currentLine
+  );
+
+}
+
+
+// Maximum 3 lines
+const displayLines =
+  lines.slice(0, 3);
+
+
+// Draw lines
+const lineHeight = 50;
+
+const startY =
+  910 -
+  ((displayLines.length - 1) *
+    lineHeight) / 2;
+
+
+displayLines.forEach(
+  (line, index) => {
 
     videoCtx.fillText(
-      productName,
+      line,
       540,
-      930
+      startY +
+        (index * lineHeight)
     );
+
+  }
+);
 
 
     // ------------------------------------
