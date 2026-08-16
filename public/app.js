@@ -19,8 +19,6 @@ document.addEventListener("DOMContentLoaded", function () {
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
-    e.preventDefault();
-
     const resultBox = document.getElementById("result");
     const resultText = document.getElementById("script");
 
