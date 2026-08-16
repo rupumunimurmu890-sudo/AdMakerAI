@@ -821,6 +821,15 @@ ctx.fillText(
     container.innerHTML = `
   <h2>${adTitle}</h2>
 
+  <a
+  href="${affiliateLink}"
+  target="_blank"
+  rel="noopener noreferrer"
+  style="
+    display:block;
+    text-decoration:none;
+  "
+>
   <img
     id="generatedAdImage"
     src="${imageUrl}"
@@ -831,8 +840,10 @@ ctx.fillText(
       border-radius:15px;
       display:block;
       margin:15px auto;
+      cursor:pointer;
     "
   >
+</a>
 
   <a
   href="${affiliateLink}"
