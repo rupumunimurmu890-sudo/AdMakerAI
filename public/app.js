@@ -1072,174 +1072,322 @@ async function createAdVideo() {
       });
 
 
-    // ------------------------------------
-    // Video API Request
-    // ------------------------------------
+    // ========================================
+// 🎬 FREE BROWSER VIDEO GENERATOR
+// ========================================
 
-    const response =
-      await fetch(
-        "/api/generate-video",
-        {
-          method: "POST",
+const videoCanvas = document.createElement("canvas");
 
-          headers: {
-            "Content-Type": "application/json"
-          },
+videoCanvas.width = 1080;
+videoCanvas.height = 1080;
 
-          body: JSON.stringify({
-            productName,
-            productDescription,
-            language,
-            script,
-            image: imageData
-          })
-        }
-      );
+const videoCtx = videoCanvas.getContext("2d");
 
+const productImg = new Image();
 
-    // ------------------------------------
-    // Response पढ़ना
-    // ------------------------------------
+productImg.onload = async function () {
 
-    const responseText =
-      await response.text();
+  const stream =
+    videoCanvas.captureStream(30);
 
-    let data;
+  const chunks = [];
 
-    try {
+  const recorder =
+    new MediaRecorder(
+      stream,
+      {
+        mimeType: "video/webm;codecs=vp9"
+      }
+    );
 
-      data =
-        JSON.parse(responseText);
+  recorder.ondataavailable = function (event) {
 
-    } catch (jsonError) {
-
-      throw new Error(
-        "Video server ने valid JSON response नहीं दिया।"
-      );
+    if (event.data.size > 0) {
+      chunks.push(event.data);
     }
 
+  };
 
-    if (
-      !response.ok ||
-      !data.success
-    ) {
+  const recordingFinished =
+    new Promise((resolve) => {
 
-      throw new Error(
-        data.error ||
-        "Video generation failed."
+      recorder.onstop = function () {
+
+        const blob =
+          new Blob(
+            chunks,
+            {
+              type: "video/webm"
+            }
+          );
+
+        resolve(
+          URL.createObjectURL(blob)
+        );
+
+      };
+
+    });
+
+
+  recorder.start();
+
+  // ------------------------------------
+  // 🎥 6 SECOND ANIMATION
+  // ------------------------------------
+
+  const duration = 6000;
+
+  const startTime =
+    performance.now();
+
+
+  function animate(currentTime) {
+
+    const elapsed =
+      currentTime - startTime;
+
+    const progress =
+      Math.min(
+        elapsed / duration,
+        1
       );
-    }
 
 
-    const videoUrl =
-      data.video ||
-      data.result?.video;
+    // Smooth zoom
+    const scale =
+      1 + (progress * 0.12);
 
 
-    if (!videoUrl) {
+    // Background
+    videoCtx.fillStyle = "#ffffff";
 
-      throw new Error(
-        "AI ने video URL नहीं दिया।"
-      );
-    }
+    videoCtx.fillRect(
+      0,
+      0,
+      1080,
+      1080
+    );
 
 
     // ------------------------------------
-    // Result
+    // PRODUCT IMAGE
     // ------------------------------------
 
-    const resultBox =
-      document.getElementById("result");
+    const imageWidth =
+      760 * scale;
 
-    if (!resultBox) {
+    const imageHeight =
+      760 * scale;
 
-      throw new Error(
-        "Result box नहीं मिला।"
+
+    const imageX =
+      (1080 - imageWidth) / 2;
+
+    const imageY =
+      110 -
+      (imageHeight - 760) / 2;
+
+
+    videoCtx.drawImage(
+      productImg,
+      imageX,
+      imageY,
+      imageWidth,
+      imageHeight
+    );
+
+
+    // ------------------------------------
+    // PRODUCT NAME
+    // ------------------------------------
+
+    videoCtx.fillStyle =
+      "#111111";
+
+    videoCtx.font =
+      "bold 55px Arial";
+
+    videoCtx.textAlign =
+      "center";
+
+    videoCtx.fillText(
+      productName,
+      540,
+      930
+    );
+
+
+    // ------------------------------------
+    // ADMAKERAI BRAND
+    // ------------------------------------
+
+    videoCtx.font =
+      "bold 30px Arial";
+
+    videoCtx.fillText(
+      "🎬 AdMakerAI",
+      540,
+      985
+    );
+
+
+    if (elapsed < duration) {
+
+      requestAnimationFrame(
+        animate
       );
+
+    } else {
+
+      recorder.stop();
+
     }
 
-    resultBox.style.display =
+  }
+
+
+  requestAnimationFrame(
+    animate
+  );
+
+
+  // ------------------------------------
+  // VIDEO URL
+  // ------------------------------------
+
+  const videoUrl =
+    await recordingFinished;
+
+
+  // ------------------------------------
+  // VIDEO ELEMENT
+  // ------------------------------------
+
+  let videoElement =
+    document.getElementById(
+      "generatedVideo"
+    );
+
+
+  if (!videoElement) {
+
+    videoElement =
+      document.createElement(
+        "video"
+      );
+
+    videoElement.id =
+      "generatedVideo";
+
+    videoElement.controls =
+      true;
+
+    videoElement.autoplay =
+      false;
+
+    videoElement.playsInline =
+      true;
+
+    videoElement.style.width =
+      "100%";
+
+    videoElement.style.maxWidth =
+      "600px";
+
+    videoElement.style.margin =
+      "15px auto";
+
+    videoElement.style.display =
       "block";
 
 
-    const oldVideoContainer =
+    const resultBox =
       document.getElementById(
-        "aiVideoContainer"
+        "result"
       );
 
-    if (oldVideoContainer) {
-      oldVideoContainer.remove();
+    if (resultBox) {
+
+      resultBox.appendChild(
+        videoElement
+      );
+
     }
 
-
-    const videoContainer =
-      document.createElement("div");
-
-    videoContainer.id =
-      "aiVideoContainer";
-
-    videoContainer.style.marginTop =
-      "20px";
+  }
 
 
-    videoContainer.innerHTML = `
-      <h2>🎬 AI Advertisement Video</h2>
+  videoElement.src =
+    videoUrl;
 
-      <video
-        id="aiAdVideo"
-        controls
-        playsinline
-        style="
-          width:100%;
-          max-width:400px;
-          border-radius:15px;
-          display:block;
-          margin:15px auto;
-        "
-      >
-        <source
-          src="${videoUrl}"
-          type="video/mp4"
-        >
-        आपका browser video support नहीं करता।
-      </video>
 
-      <a
-        href="${videoUrl}"
-        target="_blank"
-        rel="noopener"
-        download="AdMakerAI-Advertisement.mp4"
-        style="
-          display:block;
-          text-align:center;
-          text-decoration:none;
-        "
-      >
-        <button
-          type="button"
-          style="
-            width:100%;
-            margin-top:10px;
-            padding:14px;
-            border:0;
-            border-radius:10px;
-            cursor:pointer;
-          "
-        >
-          📥 Download Advertisement Video
-        </button>
-      </a>
-    `;
+  // ------------------------------------
+  // DOWNLOAD BUTTON
+  // ------------------------------------
 
+  const downloadLink =
+    document.createElement(
+      "a"
+    );
+
+  downloadLink.href =
+    videoUrl;
+
+  downloadLink.download =
+    "AdMakerAI-Advertisement.webm";
+
+  downloadLink.textContent =
+    "📥 Download Advertisement Video";
+
+
+  downloadLink.style.display =
+    "block";
+
+  downloadLink.style.textAlign =
+    "center";
+
+  downloadLink.style.margin =
+    "15px 0";
+
+  downloadLink.style.padding =
+    "14px";
+
+  downloadLink.style.borderRadius =
+    "10px";
+
+  downloadLink.style.textDecoration =
+    "none";
+
+  downloadLink.style.background =
+    "#6a00ff";
+
+  downloadLink.style.color =
+    "#ffffff";
+
+
+  const resultBox =
+    document.getElementById(
+      "result"
+    );
+
+  if (resultBox) {
 
     resultBox.appendChild(
-      videoContainer
+      downloadLink
     );
 
+  }
 
-    alert(
-      "✅ AI Advertisement Video तैयार है!"
-    );
+};
+
+
+// ------------------------------------
+// LOAD PRODUCT IMAGE
+// ------------------------------------
+
+productImg.src =
+  imageData
 
 
   } catch (error) {
