@@ -44,6 +44,7 @@
 
     <div id="historyPanel">
       <h2 style="margin-bottom:10px;">📜 Saved Advertisements</h2>
+      <div id="statsDisplay" style="margin-bottom:15px; font-size:14px; opacity:.85;"></div>
       <div id="historyList"></div>
       <button type="button" onclick="clearHistory()" style="background:#a52a4a; margin-top:15px;">
         🗑️ Clear History
@@ -55,15 +56,18 @@
       <label>📷 Product Image</label>
 
       <div class="upload" onclick="document.getElementById('imageInput').click()">
-        Tap to upload product image
+        Tap to upload product image (multiple bhi chun sakte ho)
       </div>
 
       <input
         type="file"
         id="imageInput"
         accept="image/*"
+        multiple
         style="display:none"
       >
+
+      <div id="imageGallery"></div>
 
       <img id="preview" class="preview">
 
@@ -117,6 +121,14 @@
         <option value="Summer season offer">☀️ Summer Sale</option>
         <option value="Eid special offer">🌙 Eid Special</option>
         <option value="Year end clearance sale">🎊 Year End Sale</option>
+      </select>
+
+      <label>📐 Ad Size</label>
+
+      <select id="adSize">
+        <option value="square">⬛ Square — Instagram Post (1080×1080)</option>
+        <option value="story">📱 Story / Status (1080×1920)</option>
+        <option value="fb">🖥️ Facebook Post (1200×630)</option>
       </select>
 
       <label>🎯 Advertisement Language</label>
@@ -187,6 +199,12 @@
         🎬 Create Advertisement Video
       </button>
 
+      <button type="button" onclick="createVoiceover()">
+        🎙️ Generate Voice-over Script
+      </button>
+
+      <div id="voiceoverContainer"></div>
+
       <div id="shareButtons">
 
         <button type="button" onclick="buyNow()">
@@ -231,14 +249,83 @@
 
 const imageInput = document.getElementById("imageInput");
 const preview = document.getElementById("preview");
+const imageGallery = document.getElementById("imageGallery");
+
+// 🆕 Multiple images support — jo bhi thumbnail select hoga
+// wahi "active" image hoga jo ad/video generate karne mein use hoga
+let selectedProductImageIndex = 0;
+
+function getSelectedProductImage() {
+
+  if (
+    !imageInput.files ||
+    imageInput.files.length === 0
+  ) {
+    return null;
+  }
+
+  return (
+    imageInput.files[selectedProductImageIndex] ||
+    imageInput.files[0]
+  );
+}
+
+window.getSelectedProductImage = getSelectedProductImage;
+
+
+function renderImageGallery() {
+
+  if (!imageGallery) return;
+
+  const files = imageInput.files;
+
+  if (!files || files.length <= 1) {
+    imageGallery.innerHTML = "";
+    return;
+  }
+
+  imageGallery.innerHTML = "";
+  imageGallery.style.cssText =
+    "display:flex; gap:8px; margin-top:10px; flex-wrap:wrap;";
+
+  Array.from(files).forEach(function (file, index) {
+
+    const thumb = document.createElement("img");
+
+    thumb.src = URL.createObjectURL(file);
+
+    thumb.style.cssText =
+      "width:64px; height:64px; object-fit:cover; border-radius:10px; cursor:pointer; border:3px solid " +
+      (index === selectedProductImageIndex ? "#b45cff" : "transparent") +
+      ";";
+
+    thumb.addEventListener("click", function () {
+
+      selectedProductImageIndex = index;
+
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = "block";
+
+      renderImageGallery();
+    });
+
+    imageGallery.appendChild(thumb);
+  });
+}
+
 
 imageInput.addEventListener("change", function () {
+
+  selectedProductImageIndex = 0;
+
   const file = this.files[0];
 
   if (file) {
     preview.src = URL.createObjectURL(file);
     preview.style.display = "block";
   }
+
+  renderImageGallery();
 });
 
 
@@ -310,6 +397,20 @@ async function shareAdvertisement() {
 
   const imgElement = document.getElementById("generatedAdImage");
 
+  // 🆕 Link ko clipboard mein bhi copy kar do
+  // (WhatsApp/Instagram jaisi apps kabhi image ke saath
+  // text/caption ko ignore kar deti hain — ye Web Share API
+  // ka platform-level limitation hai, isliye link ko safe
+  // rakhne ke liye clipboard mein bhi daal rahे hain)
+  if (productLink) {
+
+    try {
+      await navigator.clipboard.writeText(productLink);
+    } catch (clipboardError) {
+      console.error("Clipboard copy error:", clipboardError);
+    }
+  }
+
   try {
 
     let file = null;
@@ -339,6 +440,17 @@ async function shareAdvertisement() {
         files: [file]
       });
 
+      // 🆕 Analytics
+      if (window.incrementStat) {
+        window.incrementStat("shares");
+      }
+
+      if (productLink) {
+        alert(
+          "📋 Affiliate link clipboard mein copy ho gaya! Agar caption/message mein link na दिखे, toh manually paste कर दें।"
+        );
+      }
+
       return;
     }
 
@@ -348,6 +460,11 @@ async function shareAdvertisement() {
         title: "AdMakerAI Advertisement",
         text: text
       });
+
+      // 🆕 Analytics
+      if (window.incrementStat) {
+        window.incrementStat("shares");
+      }
 
       return;
     }
