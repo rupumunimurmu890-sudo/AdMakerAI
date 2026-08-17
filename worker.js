@@ -361,6 +361,148 @@ IMPORTANT:
 }
 
 // ========================================
+// 🎙️ AI VOICE-OVER SCRIPT GENERATION (NEW)
+// ========================================
+
+if (
+  url.pathname === "/api/generate-voiceover" &&
+  request.method === "POST"
+) {
+
+  try {
+
+    const body = await request.json();
+
+    const {
+      productName,
+      productDescription,
+      language
+    } = body;
+
+
+    if (!productName || !productDescription) {
+
+      return Response.json(
+        {
+          success: false,
+          error:
+            "Product name and description are required."
+        },
+        {
+          status: 400,
+          headers: corsHeaders
+        }
+      );
+
+    }
+
+
+    const prompt = `
+You are writing a VOICE-OVER SCRIPT for a 15-20 second product
+advertisement video. This is meant to be SPOKEN OUT LOUD, not read
+as text.
+
+STRICT RULES:
+1. Write in natural, conversational spoken language.
+2. Do NOT use emojis, hashtags, bullet points or symbols.
+3. Do NOT invent discounts, offers, specifications or guarantees.
+4. Keep it short — around 35 to 55 words, speakable in 15-20 seconds.
+5. Use short sentences with natural pauses (use "..." for pauses).
+6. End with a clear spoken call to action.
+
+PRODUCT NAME:
+${productName}
+
+PRODUCT DESCRIPTION:
+${productDescription}
+
+LANGUAGE:
+${language || "English"}
+
+Return ONLY the spoken voice-over script.
+Do not explain anything, do not add quotation marks.
+`;
+
+
+    const result = await env.AI.run(
+      "@cf/zai-org/glm-4.7-flash",
+      {
+        messages: [
+          {
+            role: "user",
+            content: prompt
+          }
+        ],
+        max_completion_tokens: 1500,
+        temperature: 0.8
+      }
+    );
+
+
+    const voiceover =
+      result?.response ||
+      result?.result ||
+      result?.text ||
+      result?.choices?.[0]?.message?.content ||
+      result?.choices?.[0]?.text ||
+      "";
+
+
+    if (!voiceover) {
+
+      return Response.json(
+        {
+          success: false,
+          error: "AI voice-over script नहीं मिला।",
+          debug: result
+        },
+        {
+          status: 500,
+          headers: corsHeaders
+        }
+      );
+
+    }
+
+
+    return Response.json(
+      {
+        success: true,
+        voiceover: voiceover.trim()
+      },
+      {
+        status: 200,
+        headers: corsHeaders
+      }
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Voice-over generation error:",
+      error
+    );
+
+    return Response.json(
+      {
+        success: false,
+        error:
+          error?.message ||
+          String(error) ||
+          "Voice-over generation failed."
+      },
+      {
+        status: 500,
+        headers: corsHeaders
+      }
+    );
+
+  }
+
+}
+
+// ========================================
 // 📢 AI ADVERTISEMENT TEXT GENERATION
 // ========================================
 
