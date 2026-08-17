@@ -292,6 +292,11 @@ function selectVariation(ads, index) {
       i === index
     );
   });
+
+  // 🆕 Analytics
+  if (window.incrementStat) {
+    window.incrementStat("adsGenerated");
+  }
 }
 
 
@@ -356,6 +361,11 @@ function getHistory() {
 
 
 function renderHistoryPanel() {
+
+  // 🆕 Stats bhi saath mein update karo
+  if (typeof renderStats === "function") {
+    renderStats();
+  }
 
   const panel =
     document.getElementById("historyList");
@@ -581,6 +591,197 @@ function toggleTheme() {
 window.toggleHistoryPanel = toggleHistoryPanel;
 window.clearHistory = clearHistory;
 window.toggleTheme = toggleTheme;
+
+
+// ========================================
+// 📊 ANALYTICS (simple local counter)
+// ========================================
+
+const STATS_KEY = "admakerai_stats";
+
+function getStats() {
+
+  try {
+
+    const raw = localStorage.getItem(STATS_KEY);
+
+    return raw
+      ? JSON.parse(raw)
+      : { adsGenerated: 0, imagesGenerated: 0, videosGenerated: 0, shares: 0 };
+
+  } catch (statsError) {
+
+    return { adsGenerated: 0, imagesGenerated: 0, videosGenerated: 0, shares: 0 };
+  }
+}
+
+
+function incrementStat(key) {
+
+  try {
+
+    const stats = getStats();
+
+    stats[key] = (stats[key] || 0) + 1;
+
+    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+
+    renderStats();
+
+  } catch (statsError) {
+
+    console.error("Stats update error:", statsError);
+  }
+}
+
+
+function renderStats() {
+
+  const statsDisplay =
+    document.getElementById("statsDisplay");
+
+  if (!statsDisplay) return;
+
+  const stats = getStats();
+
+  statsDisplay.innerHTML =
+    "📝 Ads: <b>" + (stats.adsGenerated || 0) + "</b> &nbsp; " +
+    "🖼️ Images: <b>" + (stats.imagesGenerated || 0) + "</b> &nbsp; " +
+    "🎬 Videos: <b>" + (stats.videosGenerated || 0) + "</b> &nbsp; " +
+    "📤 Shares: <b>" + (stats.shares || 0) + "</b>";
+}
+
+
+window.incrementStat = incrementStat;
+window.renderStats = renderStats;
+
+
+// ========================================
+// 🎙️ VOICE-OVER SCRIPT GENERATION
+// ========================================
+
+async function createVoiceover() {
+
+  const productName =
+    document.getElementById("productName")?.value.trim() || "";
+
+  const productDescription =
+    document.getElementById("details")?.value.trim() || "";
+
+  const language =
+    document.getElementById("language")?.value || "";
+
+  if (!productName || !productDescription) {
+
+    alert(
+      "Please enter product name and product description."
+    );
+
+    return;
+  }
+
+  const button =
+    document.querySelector(
+      'button[onclick="createVoiceover()"]'
+    );
+
+  setButtonLoading(button, "AI Voice-over script बना रहा है...");
+
+  const container =
+    document.getElementById("voiceoverContainer");
+
+  try {
+
+    const response = await fetch(
+      "/api/generate-voiceover",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          productName,
+          productDescription,
+          language
+        })
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+
+      throw new Error(
+        (data.error || "Voice-over generate नहीं हुआ।") +
+        (data.debug ? "\n\nDebug: " + JSON.stringify(data.debug) : "")
+      );
+    }
+
+    if (container) {
+
+      container.innerHTML = `
+        <div style="text-align:left; background:rgba(255,255,255,.06); border:1px solid rgba(165,82,255,.4); border-radius:14px; padding:14px; margin-top:12px;">
+          <div style="font-weight:bold; color:#d9b6ff; margin-bottom:8px;">🎙️ Voice-over Script</div>
+          <div id="voiceoverText" style="white-space:pre-line; line-height:1.6; font-size:14px;">${data.voiceover}</div>
+          <button type="button" id="playVoiceoverBtn" style="margin-top:12px;">🔊 Play</button>
+          <button type="button" id="copyVoiceoverBtn" style="margin-top:12px;">📋 Copy Script</button>
+        </div>
+      `;
+
+      const playBtn = document.getElementById("playVoiceoverBtn");
+
+      if (playBtn) {
+
+        playBtn.addEventListener("click", function () {
+
+          if (!window.speechSynthesis) {
+            alert("इस browser में Voice playback उपलब्ध नहीं है।");
+            return;
+          }
+
+          window.speechSynthesis.cancel();
+
+          const utterance =
+            new SpeechSynthesisUtterance(data.voiceover);
+
+          window.speechSynthesis.speak(utterance);
+        });
+      }
+
+      const copyBtn = document.getElementById("copyVoiceoverBtn");
+
+      if (copyBtn) {
+
+        copyBtn.addEventListener("click", async function () {
+
+          try {
+            await navigator.clipboard.writeText(data.voiceover);
+            alert("✅ Voice-over script copied!");
+          } catch (copyError) {
+            alert("❌ Copy नहीं हो पाया।");
+          }
+        });
+      }
+    }
+
+  } catch (error) {
+
+    console.error("AdMakerAI Voiceover Error:", error);
+
+    if (container) {
+      container.innerHTML =
+        '<p style="color:#ff8080; margin-top:10px;">❌ Error: ' +
+        (error?.message || "Voice-over generate नहीं हुआ।") +
+        '</p>';
+    }
+
+  } finally {
+
+    restoreButton(button, "🎙️ Generate Voice-over Script");
+  }
+}
+
+window.createVoiceover = createVoiceover;
 
 
 // ========================================
@@ -814,6 +1015,12 @@ if (
   document.getElementById("productImage") ||
   document.getElementById("productImageInput");
 
+  // 🆕 Multiple images ho toh jo gallery mein select kiya hai wahi use karo
+  const selectedImageFile =
+    (window.getSelectedProductImage && window.getSelectedProductImage()) ||
+    (imageInput?.files && imageInput.files[0]) ||
+    null;
+
 if (!productName || !productDescription) {
   
     alert(
@@ -823,11 +1030,7 @@ if (!productName || !productDescription) {
     return;
   }
 
-  if (
-    !imageInput ||
-    !imageInput.files ||
-    !imageInput.files[0]
-  ) {
+  if (!selectedImageFile) {
 
     alert(
       "पहले Product Image upload करें।"
@@ -892,7 +1095,7 @@ if (!productName || !productDescription) {
         };
 
         reader.readAsDataURL(
-          imageInput.files[0]
+          selectedImageFile
         );
 
       });
@@ -1206,6 +1409,71 @@ ctx.fillText(
 
 
     // ------------------------------------
+    // 🆕 Ad Size — 1080x1080 design ko
+    // chuni hui size mein compose karo
+    // ------------------------------------
+
+    const adSize =
+      document.getElementById("adSize")?.value || "square";
+
+    const SIZE_PRESETS = {
+      square: { width: 1080, height: 1080 },
+      story: { width: 1080, height: 1920 },
+      fb: { width: 1200, height: 630 }
+    };
+
+    const targetSize =
+      SIZE_PRESETS[adSize] || SIZE_PRESETS.square;
+
+    let finalCanvas = canvas;
+
+    if (adSize !== "square") {
+
+      finalCanvas =
+        document.createElement("canvas");
+
+      finalCanvas.width = targetSize.width;
+      finalCanvas.height = targetSize.height;
+
+      const finalCtx =
+        finalCanvas.getContext("2d");
+
+      // Background extend karo (design jaisa hi gradient)
+      const extendGradient =
+        finalCtx.createLinearGradient(
+          0, 0, targetSize.width, targetSize.height
+        );
+
+      extendGradient.addColorStop(0, "#18004a");
+      extendGradient.addColorStop(1, "#6a00ff");
+
+      finalCtx.fillStyle = extendGradient;
+      finalCtx.fillRect(0, 0, targetSize.width, targetSize.height);
+
+      // 1080x1080 design ko fit karke center mein rakho
+      const fitScale =
+        Math.min(
+          targetSize.width / 1080,
+          targetSize.height / 1080
+        );
+
+      const drawWidth = 1080 * fitScale;
+      const drawHeight = 1080 * fitScale;
+
+      const drawX = (targetSize.width - drawWidth) / 2;
+      const drawY = (targetSize.height - drawHeight) / 2;
+
+      finalCtx.drawImage(
+        canvas,
+        drawX,
+        drawY,
+        drawWidth,
+        drawHeight
+      );
+    }
+
+
+    // ------------------------------------
     // Old generated image हटाएँ
     // ------------------------------------
 
@@ -1224,7 +1492,7 @@ ctx.fillText(
     // ------------------------------------
 
     const imageUrl =
-      canvas.toDataURL(
+      finalCanvas.toDataURL(
         "image/jpeg",
         0.92
       );
@@ -1329,6 +1597,23 @@ ctx.fillText(
       `
         : "";
 
+    // 🆕 QR Code (free public API se — poster pe print karne ke liye)
+    const qrCodeHtml =
+      productLink
+        ? `
+      <div style="text-align:center; margin-top:15px;">
+        <p style="font-size:13px; opacity:.8; margin-bottom:8px;">
+          📱 Scan karke product dekho
+        </p>
+        <img
+          src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(productLink)}"
+          alt="QR Code"
+          style="width:140px; height:140px; border-radius:10px; background:#fff; padding:8px;"
+        >
+      </div>
+      `
+        : "";
+
     container.innerHTML = `
       <h2>${adTitle}</h2>
 
@@ -1363,6 +1648,7 @@ ctx.fillText(
 
       ${buyNowButtonHtml}
       ${copyLinkButtonHtml}
+      ${qrCodeHtml}
     `;
 
 
@@ -1443,6 +1729,11 @@ ctx.fillText(
       );
     }
 
+
+    // 🆕 Analytics
+    if (window.incrementStat) {
+      window.incrementStat("imagesGenerated");
+    }
 
     alert(
       "✅ Advertisement Image तैयार है!"
@@ -1528,11 +1819,13 @@ async function createAdVideo() {
     document.getElementById("productImage") ||
     document.getElementById("productImageInput");
 
-  if (
-    !imageInput ||
-    !imageInput.files ||
-    !imageInput.files[0]
-  ) {
+  // 🆕 Multiple images ho toh jo gallery mein select kiya hai wahi use karo
+  const selectedImageFile =
+    (window.getSelectedProductImage && window.getSelectedProductImage()) ||
+    (imageInput?.files && imageInput.files[0]) ||
+    null;
+
+  if (!selectedImageFile) {
 
     alert(
       "पहले Product Image upload करें।"
@@ -1591,7 +1884,7 @@ async function createAdVideo() {
           };
 
         reader.readAsDataURL(
-          imageInput.files[0]
+          selectedImageFile
         );
 
       });
@@ -1851,6 +2144,11 @@ async function createAdVideo() {
     }
 
 
+    // 🆕 Analytics
+    if (window.incrementStat) {
+      window.incrementStat("videosGenerated");
+    }
+
     alert(
       "✅ AI Advertisement Video तैयार है!"
     );
@@ -1879,4 +2177,4 @@ async function createAdVideo() {
 }
 
 window.createAdVideo =
-  createAdVideo
+  createAdVideo;
