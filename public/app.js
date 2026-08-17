@@ -1450,9 +1450,11 @@ ctx.fillText(
       finalCtx.fillStyle = extendGradient;
       finalCtx.fillRect(0, 0, targetSize.width, targetSize.height);
 
-      // 1080x1080 design ko fit karke center mein rakho
+      // 🆕 1080x1080 design ko poore frame mein "cover" karo
+      // (fill karo, zaroorat pade toh thoda crop ho jaye —
+      // isse koi khaali border/patti nahi dikhegi, HD full-bleed look)
       const fitScale =
-        Math.min(
+        Math.max(
           targetSize.width / 1080,
           targetSize.height / 1080
         );
